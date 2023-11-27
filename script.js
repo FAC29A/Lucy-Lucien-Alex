@@ -39,7 +39,7 @@ rl.setPrompt("Enter a message to send: ")
 
 rl.on("line", (input) => {
   // The channel ID where you want to send messages
-  const channelId = "1178786990641131674" // Replace with your actual channel ID
+  const channelId = "1178786990196527184" // Replace with your actual channel ID
 
   // Fetch the channel from the client
   const channel = client.channels.cache.get(channelId)
