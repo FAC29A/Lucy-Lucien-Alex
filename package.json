@@ -1,0 +1,23 @@
+{
+  "name": "lucy-lucien-alex",
+  "version": "1.0.0",
+  "description": "bot",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FAC29A/Lucy-Lucien-Alex.git"
+  },
+  "author": "ALL",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FAC29A/Lucy-Lucien-Alex/issues"
+  },
+  "homepage": "https://github.com/FAC29A/Lucy-Lucien-Alex#readme",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
+  }
+}
