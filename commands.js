@@ -1,4 +1,11 @@
-// commands.js
+// Data structure were we store all the commands
+const commandActions = {
+	ping: (message) => sendMessage(message, 'Pong!'),
+	hello: (message) => sendMessage(message, 'Hi there!'),
+	randomJoke: (message) => randomJoke(message),
+	help: sendHelpMessage,
+	// Add more commands and actions here
+}
 
 function sendMessage(message, response) {
 	message.reply(response)
@@ -10,11 +17,9 @@ function sendHelpMessage(message) {
 	message.reply(helpText)
 }
 
-const commandActions = {
-	ping: (message) => sendMessage(message, 'Pong!'),
-	hello: (message) => sendMessage(message, 'Hi there!'),
-	help: sendHelpMessage,
-	// Add more commands and actions here
+function randomJoke(message) {
+	message.reply()
 }
+
 
 module.exports = commandActions
