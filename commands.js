@@ -1,10 +1,12 @@
 const jokes = require('./jokes')
+const history = require('./history')
 
 // Data structure were we store all the commands
 const commandActions = {
 	ping: (message) => sendMessage(message, 'Pong!'),
 	hello: (message) => sendMessage(message, 'Hi there!'),
 	joke: (message) => randomJokes(message),
+	echo: (message) => echoMessage(message),
 	history: sendHistory,
 
 	help: sendHelpMessage,
@@ -12,7 +14,7 @@ const commandActions = {
 }
 
 function sendMessage(message, response) {
-  message.reply(response);
+	message.reply(response)
 }
 
 function sendHelpMessage(message) {
@@ -39,11 +41,9 @@ function sendHistory(message) {
 }
 
 function echoMessage(message) {
-  // The resason of slice(5) is because there are 5 character in !echo
-  const messageWithoutPrefix = message.content.slice(5).trim();
-  message.reply(messageWithoutPrefix);
-
-  console.log(message);
+	// The resason of slice(5) is because there are 5 character in !echo
+	const messageWithoutPrefix = message.content.slice(5).trim()
+	message.reply(messageWithoutPrefix)
 }
 
-module.exports = commandActions;
+module.exports = commandActions
