@@ -12,7 +12,7 @@ const commandActions = {
 }
 
 function sendMessage(message, response) {
-	message.reply(response)
+  message.reply(response);
 }
 
 function sendHelpMessage(message) {
@@ -38,6 +38,12 @@ function sendHistory(message) {
 	message.reply(historyText)
 }
 
-const history = require('./history')
+function echoMessage(message) {
+  // The resason of slice(5) is because there are 5 character in !echo
+  const messageWithoutPrefix = message.content.slice(5).trim();
+  message.reply(messageWithoutPrefix);
 
-module.exports = commandActions
+  console.log(message);
+}
+
+module.exports = commandActions;
