@@ -4,6 +4,7 @@ require('dotenv').config()
 // Import necessary classes from discord.js library
 const { Client, Events, GatewayIntentBits } = require('discord.js')
 const commandActions = require('./commands')
+const jokes = require('./jokes.js')
 
 // Create a new client instance
 const client = new Client({
