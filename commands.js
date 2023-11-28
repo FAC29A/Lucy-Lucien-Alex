@@ -1,9 +1,12 @@
+const jokes = require('./jokes')
+
 // Data structure were we store all the commands
 const commandActions = {
 	ping: (message) => sendMessage(message, 'Pong!'),
 	hello: (message) => sendMessage(message, 'Hi there!'),
-	joke: (message) => randomJoke(message),
+	joke: (message) => randomJokes(message),
 	history: sendHistory,
+
 	help: sendHelpMessage,
 	// Add more commands and actions here
 }
@@ -23,8 +26,10 @@ function sendHelpMessage(message) {
 	message.reply(helpText)
 }
 
-function randomJoke(message) {
-	message.reply()
+function randomJokes(message) {
+	const randomIndex = Math.floor(Math.random() * jokes.length)
+	const randomJoke = jokes[randomIndex]
+	message.reply(randomJoke)
 }
 
 function sendHistory(message) {
