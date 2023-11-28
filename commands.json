@@ -2,7 +2,7 @@
 	"ping": {
 		"response": "Pong!"
 	},
-	"hello": {
+	"greet": {
 		"response": "Hi there!"
 	},
 	"help": {
