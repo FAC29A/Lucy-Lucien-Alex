@@ -2,7 +2,7 @@
 const commandActions = {
 	ping: (message) => sendMessage(message, 'Pong!'),
 	hello: (message) => sendMessage(message, 'Hi there!'),
-	randomJoke: (message) => randomJoke(message),
+	joke: (message) => randomJoke(message),
 	history: sendHistory,
 	help: sendHelpMessage,
 	// Add more commands and actions here
@@ -13,8 +13,13 @@ function sendMessage(message, response) {
 }
 
 function sendHelpMessage(message) {
+	// Get the command names from the commandActions object
+	const commandNames = Object.keys(commandActions)
+
+	// Create a help text string listing all commands
 	const helpText =
-		'Available commands:\n\t!hello: returns "Hi There"\n\t!ping: returns "Pong!"'
+		'Available commands:\n' + commandNames.map((name) => `!${name}`).join('\n')
+
 	message.reply(helpText)
 }
 
