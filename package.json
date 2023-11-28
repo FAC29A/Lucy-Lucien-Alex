@@ -18,6 +18,7 @@
   "homepage": "https://github.com/FAC29A/Lucy-Lucien-Alex#readme",
   "dependencies": {
     "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "openai": "^4.20.1"
   }
 }
