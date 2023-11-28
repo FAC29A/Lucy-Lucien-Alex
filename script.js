@@ -1,54 +1,73 @@
 // Load environment variables from .env file
-require("dotenv").config();
+require('dotenv').config()
 
 // Import necessary classes from discord.js library
-const { Client, Events, GatewayIntentBits } = require("discord.js");
+const { Client, Events, GatewayIntentBits } = require('discord.js')
 
 // Create a new client instance
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.MessageContent,
-  ],
-});
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.DirectMessages,
+		GatewayIntentBits.MessageContent,
+	],
+})
 
-const prefix = "!"; // Set your desired command prefix
+const prefix = '!' // Set your desired command prefix
+
+// Load the commands from the JSON file
+const commands = require('./commands.json')
 
 client.once(Events.ClientReady, (createdClient) => {
-  console.log(`Ready! Logged in as ${createdClient.user.tag}`);
-  //
-});
+	console.log(`Ready! Logged in as ${createdClient.user.tag}`)
+	//
+})
 
 client.on(Events.MessageCreate, async (message) => {
-  // Ignore messages from bots to prevent infinite loops
-  if (message.author.bot) return;
+	// Ignore messages from bots to prevent infinite loops
+	if (message.author.bot) return
 
-  console.log(); // Add a line break before the message
-  console.log(`Message from ${message.author.tag}: ${message.content}`);
-  //   rl.prompt(); // Re-prompt after logging the message
+	console.log() // Add a line break before the message
+	console.log(`Message from ${message.author.tag}: ${message.content}`)
+	//   rl.prompt(); // Re-prompt after logging the message
 
-  //   Check if the message starts with the command prefix
-  if (message.content.startsWith(prefix)) {
-    // Get the command and arguments
-    const [command, ...args] = message.content
-      .slice(prefix.length)
-      .trim()
-      .split(/ +/);
+	// Check if the message starts with the command prefix
+	if (message.content.startsWith(prefix)) {
+		const command = message.content.slice(prefix.length).trim().split(/ +/)[0]
 
-    console.log(`Command: ${command}`);
-    console.log(`Arguments: ${args}`);
+		console.log(`Received command: ${command}`)
 
-    // Implement your commands here
-    if (command === "ping") {
-      message.reply("Pong!");
-    } else if (command === "hello") {
-      message.reply("Hi there!");
-    }
-  }
-});
+		// Access the 'response' property of the command object
+		if (commands[command] && commands[command].response) {
+			console.log(`Responding with: ${commands[command].response}`)
+			message.reply(commands[command].response)
+		} else {
+			console.log(`Command not found or response missing: ${command}`)
+			// Optionally send a message or log that the command was not found or response is missing
+		}
+	}
+
+	//   Check if the message starts with the command prefix
+	// if (message.content.startsWith(prefix)) {
+	//   // Get the command and arguments
+	//   const [command, ...args] = message.content
+	//     .slice(prefix.length)
+	//     .trim()
+	//     .split(/ +/);
+
+	//   console.log(`Command: ${command}`);
+	//   console.log(`Arguments: ${args}`);
+
+	//   // Implement your commands here
+	//   if (command === "ping") {
+	//     message.reply("Pong!");
+	//   } else if (command === "hello") {
+	//     message.reply("Hi there!");
+	//   }
+	// }
+})
 
 // const readline = require("readline");
 // const rl = readline.createInterface({
@@ -79,4 +98,4 @@ client.on(Events.MessageCreate, async (message) => {
 // });
 
 // Log in to Discord with your client's token
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN)

@@ -1,0 +1,11 @@
+{
+	"ping": {
+		"response": "Pong!"
+	},
+	"hello": {
+		"response": "Hi there!"
+	},
+	"help": {
+		"response": "Available commands:\n\t!help: returns the list of available commands \n\t!hello: returns \"Hi There\"\n\t!ping: returns \"Pong!\""
+	}
+}
