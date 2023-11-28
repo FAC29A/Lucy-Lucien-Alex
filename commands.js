@@ -3,6 +3,7 @@ const commandActions = {
 	ping: (message) => sendMessage(message, 'Pong!'),
 	hello: (message) => sendMessage(message, 'Hi there!'),
 	randomJoke: (message) => randomJoke(message),
+	history: sendHistory,
 	help: sendHelpMessage,
 	// Add more commands and actions here
 }
@@ -21,5 +22,12 @@ function randomJoke(message) {
 	message.reply()
 }
 
+function sendHistory(message) {
+	// Construct the history string
+	const historyText = history.join('\n')
+	message.reply(historyText)
+}
+
+const history = require('./history')
 
 module.exports = commandActions
