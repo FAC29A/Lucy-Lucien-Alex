@@ -6,7 +6,7 @@ const { Client, Events, GatewayIntentBits } = require('discord.js')
 const commandActions = require('./commands')
 
 //Array that will contain the history
-const history = []
+const history = require('./history')
 
 // Create a new client instance
 const client = new Client({
@@ -34,7 +34,7 @@ client.on(Events.MessageCreate, async (message) => {
 
 	if (message.content.startsWith(prefix)) {
 		const command = message.content.slice(prefix.length).trim().split(/ +/)[0]
-		history.push(command)
+		history.push(`Meesage from bot: ${command}`)
 
 		if (command in commandActions) {
 			commandActions[command](message)

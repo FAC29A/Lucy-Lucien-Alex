@@ -22,10 +22,12 @@ function randomJoke(message) {
 	message.reply()
 }
 
-function sendHistory(message, history) {
+function sendHistory(message) {
 	// Construct the history string
 	const historyText = history.join('\n')
 	message.reply(historyText)
 }
+
+const history = require('./history')
 
 module.exports = commandActions
