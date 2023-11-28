@@ -1,12 +1,5 @@
 // commands.js
 
-const commands = {
-	ping: sendMessage,
-	hello: sendMessage,
-	help: sendHelpMessage
-	// Add more commands and corresponding functions here
-}
-
 function sendMessage(message, response) {
 	message.reply(response)
 }
@@ -17,4 +10,11 @@ function sendHelpMessage(message) {
 	message.reply(helpText)
 }
 
-module.exports = commands
+const commandActions = {
+	ping: (message) => sendMessage(message, 'Pong!'),
+	hello: (message) => sendMessage(message, 'Hi there!'),
+	help: sendHelpMessage,
+	// Add more commands and actions here
+}
+
+module.exports = commandActions
