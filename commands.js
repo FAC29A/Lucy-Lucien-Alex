@@ -107,13 +107,21 @@ async function chatGPT(message) {
 // Function to handle the 'poll' command
 function pollCommand(message) {
   // Extract the question and options from the message content
-  const [_, question, ...options] = message.content
-    .slice(1 + "poll".length)
-    .trim()
-    .split(/\s+/);
 
-  // Check if both question and options are provided
-  if (question && options.length >= 2) {
+  const regex = /\[([^\]]+)]/g;
+  // Extract matches from the message content
+  const matches = [];
+  let match;
+  while ((match = regex.exec(message.content)) !== null) {
+    matches.push(match[1]);
+  }
+
+  // Ensure at least a question and two options are provided
+  if (matches.length >= 3) {
+    // Extract the question and options from the matches
+    const question = matches[0];
+    const options = matches.slice(1);
+
     // Create the poll message
     const pollMessage =
       `**${question}**\n\n` +
@@ -173,5 +181,4 @@ function pollCommand(message) {
     );
   }
 }
-
 module.exports = commandActions;
