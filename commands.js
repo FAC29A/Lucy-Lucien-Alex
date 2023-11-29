@@ -154,9 +154,14 @@ function pollCommand(message) {
       );
 
       // Listen for reactions and update vote counts
-      collector.on("collect", (reaction) => {
+      collector.on("collect", async (reaction) => {
         const index = parseInt(reaction.emoji.name, 10);
-        votes.set(index, votes.get(index) + 1);
+        // Ensure the bot's user ID is not included in the list of users who reacted
+        const reactedUsers = await reaction.users.fetch();
+        if (!reactedUsers.has(client.user.id)) {
+          // Skip incrementing the vote count if the bot reacted
+          votes.set(index, votes.get(index) + 1);
+        }
       });
 
       // Listen for the 'end' event to display poll results
