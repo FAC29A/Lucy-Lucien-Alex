@@ -1,5 +1,4 @@
 const jokes = require("./jokes");
-
 const history = require("./history");
 const OpenAIApi = require("openai");
 
@@ -14,11 +13,11 @@ const commandActions = {
   ping: (message) => sendMessage(message, "Pong!"),
   hello: (message) => sendMessage(message, "Hi there!"),
   joke: (message) => randomJokes(message),
-
   echo: (message) => echoMessage(message),
   history: sendHistory,
   ask: (message) => chatGPT(message),
   help: sendHelpMessage,
+  poll: (message) => pollCommand(message),
   // Add more commands and actions here
 };
 
@@ -100,6 +99,76 @@ async function chatGPT(message) {
     console.error("Error calling OpenAI:", error);
     message.reply(
       "Sorry, I encountered an error while processing your request.",
+    );
+  }
+}
+
+// Function to handle the 'poll' command
+function pollCommand(message) {
+  // Extract the question and options from the message content
+  const [_, question, ...options] = message.content
+    .slice(1 + "poll".length)
+    .trim()
+    .split(/\s+/);
+
+  // Check if both question and options are provided
+  if (question && options.length >= 2) {
+    // Create the poll message
+    const pollMessage =
+      `**${question}**\n\n` +
+      options.map((option, index) => `${index + 1}. ${option}`).join("\n");
+
+    // Send the poll message
+    message.channel.send(pollMessage).then((poll) => {
+      // Add reactions to the poll message for each option
+      options.slice(0, 9).forEach((_, index) => {
+        poll.react(`${index + 1}\u20e3`); // React with number emoji
+      });
+
+      // Create a filter for reactions (only allow reactions from the message author)
+      const filter = (reaction, user) => {
+        return options
+          .slice(0, 9)
+          .some(
+            (_, index) =>
+              reaction.emoji.name === `${index + 1}\u20e3` &&
+              user.id === message.author.id,
+          );
+      };
+
+      // Create a collector to listen for reactions
+      const collector = poll.createReactionCollector({ filter, time: 60000 }); // Collect reactions for 60 seconds
+
+      // Initialize a map to store vote counts for each option
+      const votes = new Map(
+        options.slice(0, 9).map((_, index) => [index + 1, 0]),
+      );
+
+      // Listen for reactions and update vote counts
+      collector.on("collect", (reaction) => {
+        const index = parseInt(reaction.emoji.name, 10);
+        votes.set(index, votes.get(index) + 1);
+      });
+
+      // Listen for the 'end' event to display poll results
+      collector.on("end", () => {
+        const resultsMessage =
+          `Poll results for **${question}**\n\n` +
+          options
+            .slice(0, 9)
+            .map(
+              (option, index) =>
+                `${index + 1}. ${option}: ${votes.get(index + 1)} votes`,
+            )
+            .join("\n");
+        message.channel.send(resultsMessage);
+      });
+    });
+  } else {
+    // If not enough arguments are provided, notify the user
+    sendMessage(
+      message,
+      "Please provide a question and at least two options for the poll.",
     );
   }
 }
