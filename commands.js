@@ -53,24 +53,40 @@ function echoMessage(message) {
 	message.reply(messageWithoutPrefix)
 }
 
+// Object to store conversation histories
+const conversations = {}
+
 async function chatGPT(message) {
+	// User ID as the key for conversation history
+	const userId = message.author.id
+
+	// Initialize conversation history if not present
+	if (!conversations[userId]) {
+		conversations[userId] = [
+			{ role: 'system', content: 'You are a helpful assistant.' },
+		]
+	}
 	// Extract the query from the message
 	const query = message.content.slice('!ask '.length).trim()
+	conversations[userId].push({ role: 'user', content: query })
 
 	// Call the OpenAI API for a chat completion
 	try {
 		const completion = await openai.chat.completions.create({
 			model: 'gpt-3.5-turbo',
-			messages: [
-				{ role: 'system', content: 'You are a helpful assistant.' },
-				{ role: 'user', content: query },
-			],
+			messages: conversations[userId],
 		})
 
-		console.log(completion.choices[0].message)
-
-		// Assuming the message object has a property 'content' which is the reply
+		// Get the reply and add it to the conversation history
 		const reply = completion.choices[0].message.content
+		conversations[userId].push({ role: 'assistant', content: reply })
+
+		// Limit the conversation history length to avoid large payloads
+		if (conversations[userId].length > 10) {
+			conversations[userId] = conversations[userId].slice(-10)
+		}
+
+		console.log(completion.choices[0].message)
 
 		// Send the response back to Discord
 		if (reply) {
