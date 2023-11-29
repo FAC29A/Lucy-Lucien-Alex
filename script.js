@@ -1,5 +1,5 @@
 // Load environment variables from .env file
-require("dotenv").config();
+require('dotenv').config()
 
 // Import necessary classes from discord.js library
 const { Client, Events, GatewayIntentBits } = require("discord.js");
@@ -11,25 +11,26 @@ const history = require("./history");
 
 // Create a new client instance
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.MessageContent,
-  ],
-});
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.DirectMessages,
+		GatewayIntentBits.MessageContent,
+	],
+})
 
 const prefix = "!"; // Set your desired command prefix
 
 client.once(Events.ClientReady, (createdClient) => {
-  console.log(`Ready! Logged in as ${createdClient.user.tag}`);
-  //
-});
+	console.log(`Ready! Logged in as ${createdClient.user.tag}`)
+	//
+})
 
 client.on(Events.MessageCreate, async (message) => {
-  if (message.author.bot) return;
+	if (message.author.bot) return
 
+<<<<<<< HEAD
   console.log(`Message from ${message.author.tag}: ${message.content}`);
   history.push(`Message from ${message.author.tag}: ${message.content}`);
 
@@ -45,6 +46,23 @@ client.on(Events.MessageCreate, async (message) => {
     }
   }
 });
+=======
+	console.log(`${message.author.tag}: ${message.content}`)
+	history.push(`${message.author.tag}: ${message.content}`)
+
+	if (message.content.startsWith(prefix)) {
+		const command = message.content.slice(prefix.length).trim().split(/ +/)[0]
+
+		if (command in commandActions) {
+			commandActions[command](message)
+		} else {
+			message.reply(`Command not found: ${command}`)
+			console.log(`Command not found: ${command}`)
+			//history.push(`Bot: Command not found: ${command}`)
+		}
+	}
+})
+>>>>>>> main
 
 // Log in to Discord with your client's token
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN)
