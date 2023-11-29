@@ -17,7 +17,6 @@ const commandActions = {
 	history: sendHistory,
 	ask: (message) => chatGPT(message),
 	help: sendHelpMessage,
-	// Add more commands and actions here
 }
 
 function sendMessage(message, response) {
@@ -74,6 +73,7 @@ async function chatGPT(message) {
 	try {
 		const completion = await openai.chat.completions.create({
 			model: 'gpt-3.5-turbo',
+			//model: 'gpt-4',
 			messages: conversations[userId],
 		})
 
