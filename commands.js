@@ -64,7 +64,10 @@ async function chatGPT(message) {
   // Initialize conversation history if not present
   if (!conversations[userId]) {
     conversations[userId] = [
-      { role: "system", content: "You are a helpful assistant." },
+      {
+        role: "system",
+        content: `You are a helpful assistant talking to ${message.author.tag} when answering address to me by my name to make the interaction more personalised`,
+      },
     ];
   }
   // Extract the query from the message
@@ -75,7 +78,6 @@ async function chatGPT(message) {
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      //model: 'gpt-4',
       messages: conversations[userId],
     });
 
