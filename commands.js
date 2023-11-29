@@ -142,7 +142,7 @@ function pollCommand(message) {
           .slice(0, 9)
           .some(
             (_, index) =>
-              reaction.emoji.name === `${index + 1}\u20e3` &&
+              reaction.emoji.name === `${index}\u20e3` &&
               user.id === message.author.id,
           );
       };
@@ -154,6 +154,8 @@ function pollCommand(message) {
       const votes = new Map(
         options.slice(0, 9).map((_, index) => [index + 1, 0]),
       );
+
+      console.log(votes);
 
       // Listen for reactions and update vote counts
       collector.on("collect", async (reaction) => {
