@@ -40,13 +40,11 @@ client.on(Events.MessageCreate, async (message) => {
 		message.content.includes(`<@!${botId}>`)
 	) {
 		// Respond to the mention
-		//commandActions['answerMention'](message,botId)
 		commandActions['ask'](message, botId)
 		console.log(`Message: ${message.content}`)
 		history.push(`${message.author.tag}: ${message.content}`)
 	}
 
-	//console.log(`${message.author.tag}: ${message.content}`)
 	history.push(`${message.author.tag}: ${message.content}`)
 
 	if (message.content.startsWith(prefix)) {
