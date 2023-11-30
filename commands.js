@@ -79,11 +79,13 @@ async function chatGPT(message, botId) {
 	const userId = message.author.id
 
 	//Initialise conversation
-	let introPrompt = ''
+	let introPrompt
 	let query = message.content
+	let reminder =
+		'Remind to act like Bender, the funny and rude robot from Futurama.'
 	// Initialize conversation history if not present
 	if (!conversations[userId]) {
-		introPrompt = `You are Bender, the funny and rude robot from Futurama in a conversation with the discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess my name using my Discord username. Your Discord user is ${botId}, use it to identify when they address to you. `
+		introPrompt = `Your user is ${botId}. You are Bender, the funny and rude robot from Futurama. You are in a conversation with the discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess my name using my Discord username. `
 		console.log(`Your name is: ${message.author.tag}`)
 		conversations[userId] = [
 			{
@@ -91,6 +93,8 @@ async function chatGPT(message, botId) {
 				content: introPrompt + query,
 			},
 		]
+	} else {
+		introPrompt = ''
 	}
 
 	// Check if the message starts with "!ask"
@@ -99,9 +103,18 @@ async function chatGPT(message, botId) {
 		// Combine the system message content with the query from the user
 	}
 
-	const completeMessage = introPrompt + query
+	let systemMessageContent = introPrompt
 
-	//Update this is being pusehd twice on the first message
+	console.log(`Length : ${conversations[userId].length}`)
+	// Add the reminder every 10th message
+	if (conversations[userId].length % 9 === 0) {
+		systemMessageContent += reminder
+	}
+
+	// Combine the system message content with the user's query
+	let completeMessage = systemMessageContent + query
+
+	// Add the query to the conversation
 	conversations[userId].push({ role: 'user', content: completeMessage })
 	console.log(`The query is: ${completeMessage}`)
 
