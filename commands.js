@@ -67,34 +67,36 @@ const conversations = {}
 async function chatGPT(message, botId) {
 	// User ID as the key for conversation history
 	const userId = message.author.id
-	
+
 	//Initialise conversation
-	let introPrompt = `You are ALL Bot, Discord user ${botId}, a helpful assistant talking to ${message.author.tag} but there is no need to intruduce yourself, everyone knows you. When answering address to me by my name to make the interaction more personalised. `
-	conversations[userId].push({ role: 'user', content: introPrompt })
-
-	let queryInner = message.content
-	// Check if the message starts with "!ask"
-	if (message.content.startsWith('!ask ')) {
-		queryInner = message.content.replace('!ask ', '').trim()
-		// Combine the system message content with the query from the user
-	}
-
-	console.log(`Intro Prompt is: ${introPrompt}`)
-	query = query + queryInner
-
-	console.log(`Query is: ${query}`)
-
+	let introPrompt = ''
+	let query = message.content
 	// Initialize conversation history if not present
 	if (!conversations[userId]) {
+		introPrompt = `You are ALL Bot, Discord user ${botId}, a helpful assistant talking to ${message.author.tag} but there is no need to intruduce yourself, everyone knows you. When answering address to me by my name to make the interaction more personalised.`
 		conversations[userId] = [
 			{
 				role: 'system',
-				content: query,
+				content: introPrompt + query,
 			},
 		]
 	}
- //Update this
-	conversations[userId].push({ role: 'user', content: query })
+
+	// Check if the message starts with "!ask"
+	if (query.startsWith('!ask ')) {
+		query = message.content.replace('!ask ', '').trim()
+		// Combine the system message content with the query from the user
+	}
+
+	const completeMessage = introPrompt + query
+	console.log(`The whole message is ${message}`)
+	console.log(`Intro Prompt is: ${introPrompt}`)
+	console.log(`Query is: ${query}`)
+
+	//Update this is being pusehd twice on the first message
+	conversations[userId].push({ role: 'user', content: completeMessage })
+	console.log(`The second message is ${completeMessage}`)
+
 	// Call the OpenAI API for a chat completion
 	try {
 		const completion = await openai.chat.completions.create({
