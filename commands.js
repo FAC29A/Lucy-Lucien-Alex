@@ -77,15 +77,13 @@ const conversations = {}
 async function chatGPT(message, botId) {
 	// User ID as the key for conversation history
 	const userId = message.author.id
-	// Get user's name (or tag)
-	const userName = message.author.tag // This is typically in the format 'username#1234'
 
 	//Initialise conversation
 	let introPrompt = ''
 	let query = message.content
 	// Initialize conversation history if not present
 	if (!conversations[userId]) {
-		introPrompt = `You are Bender, Discord user ${botId}, the funny and rude robot from futurama in a conversation with the Discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess it by my Discord username.`
+		introPrompt = `You are Bender, the funny and rude robot from Futurama in a conversation with the discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess my name using my Discord username. Your Discord user is ${botId}, use it to identify when they address to you. `
 		console.log(`Your name is: ${message.author.tag}`)
 		conversations[userId] = [
 			{
@@ -105,7 +103,7 @@ async function chatGPT(message, botId) {
 
 	//Update this is being pusehd twice on the first message
 	conversations[userId].push({ role: 'user', content: completeMessage })
-	console.log(`The query is ${completeMessage}`)
+	console.log(`The query is: ${completeMessage}`)
 
 	// Call the OpenAI API for a chat completion
 	try {
