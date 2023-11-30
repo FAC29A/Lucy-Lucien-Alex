@@ -35,21 +35,48 @@ client.on(Events.MessageCreate, async (message) => {
 	console.log(`botId= ${botId}`)
 
 	// Check if the message mentions the bot
-	let hardcodedCommand = 'ask'
+	// let hardcodedCommand = 'ask'
+  // add if statement, if whatever after @user is not on the command list, this will dafault the command as ask 
+
+
 	if (
 		message.content.includes(`<@${botId}>`) ||
 		message.content.includes(`<@!${botId}>`)
 	) {
-		// IF NEXT WORD IS COMMAND
-		// get index of <@${botId}
-		//  check if next word  in commandActions
-		//  hardcodedCommand = next word
+	
+    // >>>>below new added 
+    const words = message.content.split(/\s+/);
 
-		// Respond to the mention
-		commandActions[hardcodedCommand](message, botId)
-		console.log(`Message: ${message.content}`)
-		history.push(`${message.author.tag}: ${message.content}`)
-	}
+     // Find the index of the bot mention
+     const botMentionIndex = words.findIndex((word) =>
+     word.includes(`<@${botId}`) || word.includes(`<@!${botId}`)
+ );
+ // Check if there's a next word after the mention
+ if (botMentionIndex < words.length - 1) {
+  // Extract the next word as the command keyword
+  let theWordAfterBoxid = words[botMentionIndex + 1].toLowerCase();
+  let commandKeyword
+
+  // Check if the command keyword is in commandActions
+  if (!theWordAfterBoxid in commandActions) {
+    commandKeyword = "ask"
+  }else {
+      commandKeyword = theWordAfterBoxid;  } 
+      // Respond to the mention with the extracted command
+      commandActions[commandKeyword](message, botId);
+      console.log(`Message: ${message.content}`);
+      history.push(`${message.author.tag}: ${message.content}`);
+      return; // Exit the function to avoid executing the prefix check
+ 
+}
+ 
+    //  >>>>below new comment out 
+    // @hello how are you today blablabla  = @hello,  are, you, today  blablabla
+	// 	commandActions[hardcodedCommand](message, botId)
+	// 	console.log(`Message: ${message.content}`)
+	// 	history.push(`${message.author.tag}: ${message.content}`)
+	// }
+  // <<<<<<
 
 	history.push(`${message.author.tag}: ${message.content}`)
 
