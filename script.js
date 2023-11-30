@@ -36,7 +36,7 @@ client.on(Events.MessageCreate, async (message) => {
 	// Check if the message mentions the bot
 	if (message.content.includes(`<@${botId}>`)) {
 		// Respond to the mention
-		commandActions['ask'](message)
+		commandActions['answerMention'](message)
 		history.push(`${message.author.tag}: ${message.content}`)
 	}
 
