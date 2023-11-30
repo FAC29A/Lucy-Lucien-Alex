@@ -15,11 +15,13 @@ const commandActions = {
 	joke: (message) => randomJokes(message),
 	echo: (message) => echoMessage(message),
 	history: sendHistory,
-	ask: (message) => chatGPT(message),
-	answerMention: (message) =>
+	ask: (message, botId) => chatGPT(message, botId),
+	answerMention: (message, botId) =>
 		chatGPT(
 			message,
-			'They mentioned you, ALL Bot, answer accordingly. Start your answer with Hola'
+			'',
+			//`They summoned you, answer to whatever is required on the message. No need to introduce yourself as they already know you.`,
+			botId
 		),
 	help: sendHelpMessage,
 	poll: (message) => pollCommand(message),
@@ -37,7 +39,6 @@ function sendHelpMessage(message) {
 	// Create a help text string listing all commands
 	const helpText =
 		'Available commands:\n' + commandNames.map((name) => `!${name}`).join('\n')
-
 	message.reply(helpText)
 }
 
@@ -62,18 +63,30 @@ function echoMessage(message) {
 // Object to store conversation histories
 const conversations = {}
 
-async function chatGPT(message, premessage) {
+/* async function chatGPT(message, premessage, botId) { */
+async function chatGPT(message, botId) {
 	// User ID as the key for conversation history
 	const userId = message.author.id
+	let systemMessageContent = `You are ALL Bot, Discord user ${botId}, a helpful assistant talking to ${message.author.tag} but there is no need to intruduce yourself, everyone knows you. When answering address to me by my name to make the interaction more personalised. `
+
+	// Add premessage to the conversation context if it's provided
+	// Extract the preQuery from the message
+	/* if (premessage) {
+		systemMessageContent = `${premessage} ${systemMessageContent}`
+	} */
+
+	let query = systemMessageContent
+	// Check if the message starts with "!ask"
+	if (message.content.startsWith('!ask ')) {
+		const queryInner = message.content.replace('!ask ', '').trim()
+		// Combine the system message content with the query from the user
+		query = query + queryInner
+	}
+
+	console.log(`Query is: ${query}`)
 
 	// Initialize conversation history if not present
 	if (!conversations[userId]) {
-		// Add premessage to the conversation context if it's provided
-		let systemMessageContent = `You are ALL Bot, a helpful assistant talking to ${message.author.tag} when answering address to me by my name to make the interaction more personalised. If you read '@ALL Bot' in a message that is referring to you, that is your name.`
-		if (premessage) {
-			systemMessageContent = `${premessage} ${systemMessageContent}`
-		}
-
 		conversations[userId] = [
 			{
 				role: 'system',
@@ -81,10 +94,7 @@ async function chatGPT(message, premessage) {
 			},
 		]
 	}
-	// Extract the query from the message
-	const query = premessage
-		? premessage
-		: message.content.slice('!ask '.length).trim()
+
 	conversations[userId].push({ role: 'user', content: query })
 	// Call the OpenAI API for a chat completion
 	try {
@@ -101,8 +111,6 @@ async function chatGPT(message, premessage) {
 		if (conversations[userId].length > 10) {
 			conversations[userId] = conversations[userId].slice(-10)
 		}
-
-		console.log(completion.choices[0].message)
 
 		// Send the response back to Discord
 		if (reply) {
