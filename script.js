@@ -23,7 +23,7 @@ const client = new Client({
 const prefix = "!"; // Set your desired command prefix
 
 client.once(Events.ClientReady, (createdClient) => {
-  console.log(`Ready! Logged in as ${createdClient.user.tag}`);
+  console.log(`Logged in as ${createdClient.user.tag}`);
   //
 });
 
