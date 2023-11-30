@@ -35,12 +35,16 @@ client.on(Events.MessageCreate, async (message) => {
 	console.log(`botId= ${botId}`)
 
 	// Check if the message mentions the bot
+  let hardcodedCommand = 'ask'
 	if (
 		message.content.includes(`<@${botId}>`) ||
 		message.content.includes(`<@!${botId}>`)
 	) {
+    // IF NEXT WORD IS COMMAND 
+    //  command in commandActions
+    //  hardcodedCommand = get(command)
 		// Respond to the mention
-		commandActions['ask'](message, botId)
+		commandActions[hardcodedCommand](message, botId)
 		console.log(`Message: ${message.content}`)
 		history.push(`${message.author.tag}: ${message.content}`)
 	}
