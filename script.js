@@ -35,20 +35,33 @@ client.on(Events.MessageCreate, async (message) => {
 	console.log(`botId= ${botId}`)
 
 	// Check if the message mentions the bot
-	let hardcodedCommand = 'ask'
 	if (
 		message.content.includes(`<@${botId}>`) ||
 		message.content.includes(`<@!${botId}>`)
 	) {
-		// IF NEXT WORD IS COMMAND
-		// get index of <@${botId}
-		//  check if next word  in commandActions
-		//  hardcodedCommand = next word
+		// Split the message content into words
+        const words = message.content.split(/\s+/);
 
-		// Respond to the mention
-		commandActions[hardcodedCommand](message, botId)
-		console.log(`Message: ${message.content}`)
-		history.push(`${message.author.tag}: ${message.content}`)
+        // Find the index of the bot mention
+        const botMentionIndex = words.findIndex((word) =>
+            word.includes(`<@${botId}`) || word.includes(`<@!${botId}`)
+        );
+
+        // Check if there's a next word after the mention
+        if (botMentionIndex < words.length - 1) {
+            // Extract the next word as the command keyword
+            const commandKeyword = words[botMentionIndex + 1].toLowerCase();
+
+            // Check if the command keyword is in commandActions
+            if (commandKeyword in commandActions) {
+                // Respond to the mention with the extracted command
+                commandActions[commandKeyword](message, botId);
+                console.log(`Message: ${message.content}`);
+                history.push(`${message.author.tag}: ${message.content}`);
+                return; // Exit the function to avoid executing the prefix check
+            }
+		}
+		
 	}
 
 	history.push(`${message.author.tag}: ${message.content}`)
