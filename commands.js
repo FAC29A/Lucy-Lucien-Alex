@@ -3,7 +3,6 @@ const history = require('./history')
 const OpenAIApi = require('openai')
 
 // Initialize OpenAI SDK with API key from .env file
-
 const openai = new OpenAIApi({
 	apiKey: process.env.OPENAI_API_KEY,
 })
@@ -16,13 +15,6 @@ const commandActions = {
 	echo: (message) => echoMessage(message),
 	history: sendHistory,
 	ask: (message, botId) => chatGPT(message, botId),
-	/* answerMention: (message, botId) =>
-		chatGPT(
-			message,
-			'',
-			//`They summoned you, answer to whatever is required on the message. No need to introduce yourself as they already know you.`,
-			botId
-		), */
 	help: sendHelpMessage,
 	poll: (message) => pollCommand(message),
 	// Add more commands and actions here
@@ -63,7 +55,6 @@ function echoMessage(message) {
 // Object to store conversation histories
 const conversations = {}
 
-/* async function chatGPT(message, premessage, botId) { */
 async function chatGPT(message, botId) {
 	// User ID as the key for conversation history
 	const userId = message.author.id
@@ -89,13 +80,10 @@ async function chatGPT(message, botId) {
 	}
 
 	const completeMessage = introPrompt + query
-	console.log(`The whole message is ${message}`)
-	console.log(`Intro Prompt is: ${introPrompt}`)
-	console.log(`Query is: ${query}`)
 
 	//Update this is being pusehd twice on the first message
 	conversations[userId].push({ role: 'user', content: completeMessage })
-	console.log(`The second message is ${completeMessage}`)
+	console.log(`The query is ${completeMessage}`)
 
 	// Call the OpenAI API for a chat completion
 	try {
