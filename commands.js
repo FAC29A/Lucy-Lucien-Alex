@@ -16,13 +16,13 @@ const commandActions = {
 	echo: (message) => echoMessage(message),
 	history: sendHistory,
 	ask: (message, botId) => chatGPT(message, botId),
-	answerMention: (message, botId) =>
+	/* answerMention: (message, botId) =>
 		chatGPT(
 			message,
 			'',
 			//`They summoned you, answer to whatever is required on the message. No need to introduce yourself as they already know you.`,
 			botId
-		),
+		), */
 	help: sendHelpMessage,
 	poll: (message) => pollCommand(message),
 	// Add more commands and actions here
@@ -67,21 +67,20 @@ const conversations = {}
 async function chatGPT(message, botId) {
 	// User ID as the key for conversation history
 	const userId = message.author.id
-	let systemMessageContent = `You are ALL Bot, Discord user ${botId}, a helpful assistant talking to ${message.author.tag} but there is no need to intruduce yourself, everyone knows you. When answering address to me by my name to make the interaction more personalised. `
+	
+	//Initialise conversation
+	let introPrompt = `You are ALL Bot, Discord user ${botId}, a helpful assistant talking to ${message.author.tag} but there is no need to intruduce yourself, everyone knows you. When answering address to me by my name to make the interaction more personalised. `
+	conversations[userId].push({ role: 'user', content: introPrompt })
 
-	// Add premessage to the conversation context if it's provided
-	// Extract the preQuery from the message
-	/* if (premessage) {
-		systemMessageContent = `${premessage} ${systemMessageContent}`
-	} */
-
-	let query = systemMessageContent
+	let queryInner = message.content
 	// Check if the message starts with "!ask"
 	if (message.content.startsWith('!ask ')) {
-		const queryInner = message.content.replace('!ask ', '').trim()
+		queryInner = message.content.replace('!ask ', '').trim()
 		// Combine the system message content with the query from the user
-		query = query + queryInner
 	}
+
+	console.log(`Intro Prompt is: ${introPrompt}`)
+	query = query + queryInner
 
 	console.log(`Query is: ${query}`)
 
@@ -90,11 +89,11 @@ async function chatGPT(message, botId) {
 		conversations[userId] = [
 			{
 				role: 'system',
-				content: systemMessageContent,
+				content: query,
 			},
 		]
 	}
-
+ //Update this
 	conversations[userId].push({ role: 'user', content: query })
 	// Call the OpenAI API for a chat completion
 	try {
