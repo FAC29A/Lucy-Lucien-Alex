@@ -85,7 +85,7 @@ async function chatGPT(message, botId) {
 	let query = message.content
 	// Initialize conversation history if not present
 	if (!conversations[userId]) {
-		introPrompt = `You are Bender, Discord user ${botId}, the funny and rude robot from futurama in a conversation with the Discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess it by my Discord username.`
+		introPrompt = `You are Bender, Discord user ${botId}, the funny and rude robot from Futurama in a conversation with the Discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess it by my Discord username.`
 		console.log(`Your name is: ${message.author.tag}`)
 		conversations[userId] = [
 			{
