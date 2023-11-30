@@ -32,7 +32,7 @@ client.on(Events.MessageCreate, async (message) => {
 
   // Get the bot's user ID
   let botId = client.user.id;
-  console.log(`botId= ${botId}`);
+  // console.log(`botId= ${botId}`);
 
   // Check if the message mentions the bot
 
