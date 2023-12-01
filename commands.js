@@ -17,7 +17,7 @@ const commandActions = {
 	ask: (message, botId) => chatGPT(message, botId),
 	help: sendHelpMessage,
 	poll: (message) => pollCommand(message),
-	// Add more commands and actions here
+	//lights: (message) => controlPrinterLights(message),
 }
 
 function sendMessage(message, response) {
@@ -86,7 +86,7 @@ async function chatGPT(message, botId) {
 	// Initialize conversation history if not present
 	if (!conversations[userId]) {
 		introPrompt = `Your user is ${botId}. You are Bender, the funny and rude robot from Futurama. You are in a conversation with the discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess my name using my Discord username. `
-		console.log(`Your name is: ${message.author.tag}`)
+		//console.log(`Your name is: ${message.author.tag}`)
 		conversations[userId] = [
 			{
 				role: 'system',
@@ -105,10 +105,40 @@ async function chatGPT(message, botId) {
 
 	let systemMessageContent = introPrompt
 
-	console.log(`Length : ${conversations[userId].length}`)
+	//console.log(`Length : ${conversations[userId].length}`)
 	// Add the reminder every 10th message
 	if (conversations[userId].length % 9 === 0) {
 		systemMessageContent += reminder
+	}
+
+	//Check if the query is about printer status
+	if (query.toLowerCase().includes('printer')) {
+		// Call the printerStatus function directly
+		// Await the printer status and construct the message
+		const printerStatusResult = await printerStatus()
+		const printerMessage =
+			'I asked you about my printer, tell me back that the status is: ' +
+			printerStatusResult +
+			' '
+		query = printerMessage + query
+	}
+
+	//Check if the query is about printer lights
+	if (query.toLowerCase().includes('light on')) {
+		const printerStatusResult = await controlPrinterLights('on')
+		console.log('inside first if')
+		const printerMessage =
+			'You just switched my printer lights on, brag about it '
+		query = printerMessage + query
+	}
+
+	//Check if the query is about printer lights
+	if (query.toLowerCase().includes('light off')) {
+		const printerStatusResult = await controlPrinterLights('off')
+		console.log('inside first if')
+		const printerMessage =
+			'You just switched my printer lights off, brag about it '
+		query = printerMessage + query
 	}
 
 	// Combine the system message content with the user's query
@@ -232,4 +262,45 @@ function pollCommand(message) {
 		)
 	}
 }
+
+//CONTROLING 3D PRINTER
+const fetch = require('node-fetch')
+
+// Command to get printer status
+async function printerStatus() {
+	try {
+		const response = await fetch(
+			'http://192.168.0.51/printer/objects/query?webhooks'
+		)
+		const data = await response.json()
+		const answer = data.result.status.webhooks.state_message
+		//message.reply(`Printer Status: ${answer}`)
+		return answer
+	} catch (error) {
+		console.error('Error fetching printer status:', error)
+	}
+}
+
+// Control lights
+async function controlPrinterLights(action) {
+	try {
+		let url = ''
+		// Replace with your printer's API endpoint and the appropriate command format
+		if (action === 'on') {
+			console.log('Switching lights On')
+			url = `http://192.168.0.51/printer/gcode/script?script=Lights_ON`
+		} else if (action === 'off') {
+			console.log('Switching lights Off')
+			url = `http://192.168.0.51/printer/gcode/script?script=Lights_OFF`
+		}
+
+		const response = await fetch(url, {
+			method: 'POST',
+		})
+	} catch (error) {
+		console.error('Error controlling printer lights:', error)
+		message.reply('An error occurred while controlling the printer lights.')
+	}
+}
+
 module.exports = commandActions
