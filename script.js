@@ -1,9 +1,15 @@
 // Load environment variables from .env file
 require('dotenv').config()
-const { ChannelType } = require('discord.js')
 
 // Import necessary classes from discord.js library
-const { Client, Events, GatewayIntentBits } = require('discord.js')
+const {
+	Client,
+	Events,
+	GatewayIntentBits,
+	Partials,
+	ChannelType,
+} = require('discord.js')
+
 const commandActions = require('./commands')
 const jokes = require('./jokes.js')
 
@@ -19,17 +25,17 @@ const client = new Client({
 		GatewayIntentBits.DirectMessages,
 		GatewayIntentBits.MessageContent,
 	],
+	partials: [Partials.Channel],
 })
 
-const prefix = '!' // Set your desired command prefix
+// Command prefix
+const prefix = '!'
 
 client.once(Events.ClientReady, (createdClient) => {
 	console.log(`Logged in as ${createdClient.user.tag}`)
-	//
 })
 
 client.on(Events.MessageCreate, async (message) => {
-	console.log(`This is a ${message.channel.type}`)
 	if (message.author.bot) return
 
 	// Get the bot's user ID
@@ -38,8 +44,10 @@ client.on(Events.MessageCreate, async (message) => {
 	// Check if the message is a Direct Message
 	if (message.channel.type === ChannelType.DM) {
 		// Send a DM response
-		console.log(`This is a DM`)
-		message.reply('Hello! How can I help you?')
+		commandActions['ask'](message, botId)
+		console.log(`Message: ${message.content}`)
+		history.push(`${message.author.tag}: ${message.content}`)
+		return // Exit the function to avoid executing the prefix check
 	}
 
 	// Check if the message mentions the bot
