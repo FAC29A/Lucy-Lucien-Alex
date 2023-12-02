@@ -30,6 +30,8 @@ const client = new Client({
 
 // Command prefix
 const prefix = "!";
+// Trigger for proactive DM sending (for example, if a message contains a specific keyword)
+const triggerKeyword = "notify";
 
 client.once(Events.ClientReady, (createdClient) => {
   console.log(`Logged in as ${createdClient.user.tag}`);
@@ -53,6 +55,20 @@ client.on(Events.MessageCreate, async (message) => {
     console.log(`Message: ${message.content}`);
     history.push(`${message.author.tag}: ${message.content}`);
     return; // Exit the function to avoid executing the prefix check
+  }
+
+  // Check for the trigger keyword
+  if (message.content.toLowerCase().includes(triggerKeyword)) {
+    // Get the target user (replace 'TARGET_USER_ID' with the actual user ID)
+    const targetUser = await client.users.fetch("TARGET_USER_ID");
+
+    // Check if the target user exists
+    if (targetUser) {
+      // Send a proactive DM
+      targetUser.send("This is a proactive message!");
+    } else {
+      console.log("Target user not found.");
+    }
   }
 
   // Check if the message mentions the bot
