@@ -30,6 +30,8 @@ const client = new Client({
 
 // Command prefix
 const prefix = "!";
+// Trigger for proactive DM sending (for example, if a message contains a specific keyword)
+const triggerKeyword = "notify";
 
 client.once(Events.ClientReady, (createdClient) => {
   console.log(`Logged in as ${createdClient.user.tag}`);
@@ -55,8 +57,68 @@ client.on(Events.MessageCreate, async (message) => {
     return; // Exit the function to avoid executing the prefix check
   }
 
+  // Check for the trigger keyword
+  if (message.content.toLowerCase().includes(triggerKeyword)) {
+    // Get the target channel (replace 'TARGET_CHANNEL_ID' with the actual channel ID)
+    const targetChannelId = "1180643625781170206";
+
+    try {
+      const guild = await client.guilds.fetch(message.guild.id);
+      const targetChannel = await guild.channels
+        .fetch(targetChannelId)
+        .catch((error) => {
+          console.error(`Failed to fetch target channel: ${error.message}`);
+          throw error; // Rethrow the error to prevent further execution
+        });
+
+      // Check if the target channel exists and is a text channel
+      if (targetChannel && targetChannel.type === ChannelType.GuildText) {
+        console.log("Target channel is a text channel. Proceeding...");
+
+        // Fetch all members in the target channel with the 'force' option
+        await targetChannel.guild.members.fetch({ force: true });
+
+        // Fetch all members in the target channel
+        const members = targetChannel.guild.members.cache;
+
+        // Check if the message contains the notify keyword
+        if (message.content.toLowerCase().includes("[notify]")) {
+          try {
+            const notifyMessage = message.content
+              .slice(
+                message.content.toLowerCase().indexOf("[notify]") +
+                  "[notify]".length,
+              )
+              .trim();
+
+            // Iterate over each member and send a proactive DM
+            members.forEach(async (member) => {
+              try {
+                // Send a DM with the specified message
+                await member.send(
+                  `${message.author.tag} says: ${notifyMessage}`,
+                );
+              } catch (error) {
+                console.error(
+                  `Failed to send DM to ${member.user.tag}: ${error.message}`,
+                );
+              }
+            });
+          } catch (error) {
+            console.error(`Error processing !notify command: ${error.message}`);
+          }
+        }
+      } else {
+        console.log("Target channel not found or is not a text channel.");
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching target channel (${targetChannelId}): ${error.message}`,
+      );
+    }
+  }
+
   // Check if the message mentions the bot
-  // add if statement, if whatever after @user is not on the command list, this will dafault the command as ask
 
   if (
     message.content.includes(`<@${botId}>`) ||
