@@ -102,21 +102,37 @@ client.on(Events.MessageCreate, async (message) => {
               .trim();
 
             // Iterate over each member and send a proactive DM
-            members.forEach(async (member) => {
-              // Check user privacy settings before sending a DM
-              const userPrivacySettings = member.user.settings; // Adjust this based on your actual user settings structure
-
+            for (const [_, member] of members) {
               try {
-                // Send a DM with the specified message
-                await member.send(
-                  `${message.author.tag} says: ${notifyMessage}`,
+                // Fetch the member to ensure additional data is available
+                const fetchedMember = await targetChannel.guild.members.fetch(
+                  member.id,
                 );
+
+                // Check user privacy settings before sending a DM
+                const userPrivacySettings = fetchedMember.user.settings || {
+                  allowDMs: true,
+                };
+                if (userPrivacySettings.allowDMs) {
+                  // Send a DM with the specified message
+                  await fetchedMember.send(
+                    `${message.author.tag} says: ${notifyMessage}`,
+                  );
+                  // Log the allowDMs permission for the member
+                  console.log(
+                    `Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`,
+                  );
+                } else {
+                  console.log(
+                    `User ${fetchedMember.user.tag} has disabled direct messages.`,
+                  );
+                }
               } catch (error) {
                 console.error(
                   `Failed to send DM to ${member.user.tag}: ${error.message}`,
                 );
               }
-            });
+            }
           } catch (error) {
             console.error(`Error processing !notify command: ${error.message}`);
           }
