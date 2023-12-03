@@ -71,19 +71,6 @@ client.on(Events.MessageCreate, async (message) => {
           throw error; // Rethrow the error to prevent further execution
         });
 
-      // Log the fetched channel information
-      console.log(
-        `Fetched target channel: ${
-          targetChannel ? targetChannel.name : "N/A"
-        } (${targetChannelId}), type: ${
-          targetChannel ? targetChannel.type : "N/A"
-        }, permissions: ${
-          targetChannel
-            ? targetChannel.permissionsFor(client.user).toArray().join(", ")
-            : "N/A"
-        }`,
-      );
-
       // Check if the target channel exists and is a text channel
       if (targetChannel && targetChannel.type === ChannelType.GuildText) {
         console.log("Target channel is a text channel. Proceeding...");
@@ -94,17 +81,33 @@ client.on(Events.MessageCreate, async (message) => {
         // Fetch all members in the target channel
         const members = targetChannel.guild.members.cache;
 
-        // Iterate over each member and send a proactive DM
-        members.forEach(async (member) => {
+        // Check if the message contains the notify keyword
+        if (message.content.toLowerCase().includes("[notify]")) {
           try {
-            // Send a proactive DM
-            await member.send("This is a proactive message!");
+            const notifyMessage = message.content
+              .slice(
+                message.content.toLowerCase().indexOf("[notify]") +
+                  "[notify]".length,
+              )
+              .trim();
+
+            // Iterate over each member and send a proactive DM
+            members.forEach(async (member) => {
+              try {
+                // Send a DM with the specified message
+                await member.send(
+                  `${message.author.tag} says: ${notifyMessage}`,
+                );
+              } catch (error) {
+                console.error(
+                  `Failed to send DM to ${member.user.tag}: ${error.message}`,
+                );
+              }
+            });
           } catch (error) {
-            console.error(
-              `Failed to send DM to ${member.user.tag}: ${error.message}`,
-            );
+            console.error(`Error processing !notify command: ${error.message}`);
           }
-        });
+        }
       } else {
         console.log("Target channel not found or is not a text channel.");
       }
@@ -113,30 +116,9 @@ client.on(Events.MessageCreate, async (message) => {
         `Error fetching target channel (${targetChannelId}): ${error.message}`,
       );
     }
-
-    // // Check if the target channel exists and is a text channel
-    // if (targetChannel && targetChannel.type === "GUILD_TEXT") {
-    //   // Fetch all members in the channel
-    //   const members = await targetChannel.members.fetch();
-
-    //   // Iterate over each member and send a proactive DM
-    //   members.forEach(async (member) => {
-    //     try {
-    //       // Send a proactive DM
-    //       await member.send("This is a proactive message!");
-    //     } catch (error) {
-    //       console.error(
-    //         `Failed to send DM to ${member.user.tag}: ${error.message}`,
-    //       );
-    //     }
-    //   });
-    // } else {
-    //   console.log("Target channel not found or is not a text channel.");
-    // }
   }
 
   // Check if the message mentions the bot
-  // add if statement, if whatever after @user is not on the command list, this will dafault the command as ask
 
   if (
     message.content.includes(`<@${botId}>`) ||
