@@ -45,6 +45,16 @@ client.on(Events.MessageCreate, async (message) => {
 
   // Check if the message is a Direct Message
   if (message.channel.type === ChannelType.DM) {
+    // Check user privacy settings
+    const userPrivacySettings = message.author.settings || { allowDMs: true };
+    console.log(
+      `User ${message.author.tag} - allowDMs: ${userPrivacySettings.allowDMs}`,
+    );
+    if (!userPrivacySettings.allowDMs) {
+      console.log(`User ${message.author.tag} has disabled direct messages.`);
+      return;
+    }
+
     // Check if the message starts with the prefix and execute the command
     if (message.content.startsWith(prefix)) {
       executeCommand(message, botId, commandActions, prefix);
@@ -93,6 +103,9 @@ client.on(Events.MessageCreate, async (message) => {
 
             // Iterate over each member and send a proactive DM
             members.forEach(async (member) => {
+              // Check user privacy settings before sending a DM
+              const userPrivacySettings = member.user.settings; // Adjust this based on your actual user settings structure
+
               try {
                 // Send a DM with the specified message
                 await member.send(
