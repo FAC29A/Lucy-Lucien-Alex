@@ -45,6 +45,16 @@ client.on(Events.MessageCreate, async (message) => {
 
   // Check if the message is a Direct Message
   if (message.channel.type === ChannelType.DM) {
+    // Check user privacy settings
+    const userPrivacySettings = message.author.settings || { allowDMs: true };
+    console.log(
+      `User ${message.author.tag} - allowDMs: ${userPrivacySettings.allowDMs}`,
+    );
+    if (!userPrivacySettings.allowDMs) {
+      console.log(`User ${message.author.tag} has disabled direct messages.`);
+      return;
+    }
+
     // Check if the message starts with the prefix and execute the command
     if (message.content.startsWith(prefix)) {
       executeCommand(message, botId, commandActions, prefix);
@@ -92,18 +102,37 @@ client.on(Events.MessageCreate, async (message) => {
               .trim();
 
             // Iterate over each member and send a proactive DM
-            members.forEach(async (member) => {
+            for (const [_, member] of members) {
               try {
-                // Send a DM with the specified message
-                await member.send(
-                  `${message.author.tag} says: ${notifyMessage}`,
+                // Fetch the member to ensure additional data is available
+                const fetchedMember = await targetChannel.guild.members.fetch(
+                  member.id,
                 );
+
+                // Check user privacy settings before sending a DM
+                const userPrivacySettings = fetchedMember.user.settings || {
+                  allowDMs: true,
+                };
+                if (userPrivacySettings.allowDMs) {
+                  // Send a DM with the specified message
+                  await fetchedMember.send(
+                    `${message.author.tag} says: ${notifyMessage}`,
+                  );
+                  // Log the allowDMs permission for the member
+                  console.log(
+                    `Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`,
+                  );
+                } else {
+                  console.log(
+                    `User ${fetchedMember.user.tag} has disabled direct messages.`,
+                  );
+                }
               } catch (error) {
                 console.error(
                   `Failed to send DM to ${member.user.tag}: ${error.message}`,
                 );
               }
-            });
+            }
           } catch (error) {
             console.error(`Error processing !notify command: ${error.message}`);
           }
