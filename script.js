@@ -202,21 +202,9 @@ function executeCommand(
   prefix,
 ) {
   try {
-    console.log("Prefix in executeCommand:", prefix);
-    console.log("Is prefix defined?", prefix !== undefined);
-    console.log("Message:", message); // Add this line
-    console.log("Message content:", message.content);
-    console.log("Prefix:", prefix);
-
     const trimmedContent = message.content.slice(prefix.length).trim();
-    console.log("Trimmed content:", trimmedContent);
-
     const args = trimmedContent.split(/ +/);
-    console.log("Args:", args);
-
-    const command = args.shift().toLowerCase(); // Use shift to get the command and remove it from the args array
-    console.log("Command:", command);
-    console.log("Args:", args);
+    const command = args.shift().toLowerCase();
 
     if (!command) {
       return;
@@ -224,14 +212,11 @@ function executeCommand(
 
     if (message.channel.type === ChannelType.DM) {
       if (command in dmCommandActions) {
-        console.log("Executing DM command:", command);
         dmCommandActions[command](message, botId, args);
       } else {
-        console.log("Executing regular command:", command);
         executeRegularCommand(message, botId, commandActions, prefix, args);
       }
     } else {
-      console.log("Executing regular command:", command);
       executeRegularCommand(message, botId, commandActions, prefix, args);
     }
   } catch (error) {
@@ -239,33 +224,15 @@ function executeCommand(
   }
 }
 
-// Function to execute regular commands
 function executeRegularCommand(message, botId, commandActions, prefix, args) {
   const command = message.content.slice(prefix.length).trim().split(/ +/)[0];
-
-  // Log the message content and args for debugging
-  console.log(`Message Content: ${message.content}`);
-  console.log(`Args: ${args}`);
 
   if (command in commandActions) {
     commandActions[command](message, botId, args);
   } else {
     message.reply(`Command not found: ${command}`);
-    console.log(`Command not found: ${command}`);
   }
 }
-
-// // Function to handle command execution
-// function executeCommand(message, botId, commandActions, prefix) {
-//   const command = message.content.slice(prefix.length).trim().split(/ +/)[0];
-
-//   if (command in commandActions) {
-//     commandActions[command](message, botId);
-//   } else {
-//     message.reply(`Command not found: ${command}`);
-//     console.log(`Command not found: ${command}`);
-//   }
-// }
 
 // Log in to Discord with your client's token
 client.login(process.env.DISCORD_TOKEN);
