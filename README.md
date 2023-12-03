@@ -24,13 +24,6 @@
 
 - **Error Handling**: As a beginner, I want to implement error handling in my bot interactions using **`try...catch`** within my **`async`** functions to manage exceptions and provide error messages if something goes wrong.
 
-# Running the Bot on a Raspberry PI.
-
-## Install pm2 globally using npm:
-
-```bash
-sudo npm install pm2 -g
-```
 
 # Handling mentions and DM Functionalities
 
@@ -67,6 +60,14 @@ As a developer, I want the bot to recognise when a message is a direct message (
 6. **User Feedback Collection via DM**: As a developer, I want the bot to collect user feedback via direct messages. This could involve the bot sending a DM to ask for feedback after performing a task or responding to a command.
 7. **Error Handling in DMs**: As a developer, I want the bot to handle errors or invalid commands in DMs gracefully. The bot should provide clear guidance or assistance if users encounter issues while interacting through direct messages.
 
+
+# Running the Bot on a Raspberry PI.
+
+## Install pm2 globally using npm:
+
+```bash
+sudo npm install pm2 -g
+```
 ## Running Your Bot with pm2
 
 Start your bot with pm2 by navigating to your bot's directory and running:
