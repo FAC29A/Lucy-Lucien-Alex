@@ -10,7 +10,7 @@ const {
   ChannelType,
 } = require("discord.js");
 
-const { commandActions, dmCommandActions } = require("./commands");
+const { commandActions, dmCommandActions, listMembers } = require("./commands");
 
 const jokes = require("./jokes.js");
 
@@ -194,7 +194,7 @@ client.on(Events.MessageCreate, async (message) => {
   }
 });
 
-function executeCommand(
+async function executeCommand(
   message,
   botId,
   dmCommandActions,
@@ -212,15 +212,25 @@ function executeCommand(
 
     if (message.channel.type === ChannelType.DM) {
       if (command in dmCommandActions) {
-        dmCommandActions[command](message, botId, args);
+        await dmCommandActions[command](message, botId, args);
       } else {
-        executeRegularCommand(message, botId, commandActions, prefix, args);
+        await executeRegularCommand(
+          message,
+          botId,
+          commandActions,
+          prefix,
+          args,
+        );
       }
     } else {
-      executeRegularCommand(message, botId, commandActions, prefix, args);
+      await executeRegularCommand(message, botId, commandActions, prefix, args);
     }
   } catch (error) {
     console.error("Error in executeCommand:", error);
+    // Reply in the channel with a more specific error message
+    message.reply(
+      error.message || "An error occurred while processing your request.",
+    );
   }
 }
 

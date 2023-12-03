@@ -239,21 +239,30 @@ function pollCommand(message) {
   }
 }
 
-function listMembers(message) {
-  const randomIndex = Math.floor(Math.random() * jokes.length);
-  const randomJoke = jokes[randomIndex];
-  message.reply(randomJoke);
+// Function to list members in a DM
+async function listMembers(message) {
+  try {
+    // Check if the message is sent in a server
+    if (message.guild) {
+      // Retrieve the list of members and their IDs
+      const membersList = message.guild.members.cache.map((member) => {
+        return `${member.user.tag} - ${member.user.id}`;
+      });
+
+      // Send a DM to the user with the list of members
+      await message.author.send(`Members:\n${membersList.join("\n")}`);
+
+      // Reply in the channel that the list has been sent to the user
+      message.reply("The list of members has been sent to your DMs!");
+    } else {
+      // Reply in the channel if the message is not in a server
+      throw new Error("This command is only available in server channels.");
+    }
+  } catch (error) {
+    console.error(`Error in listMembers: ${error.message}`);
+    // Reply in the channel with a more specific error message
+    message.reply(error.message);
+  }
 }
 
-// // Function to list members in a DM
-// function listMembers(message) {
-//   // Retrieve the list of members and their IDs
-//   const membersList = message.guild.members.cache.map((member) => {
-//     return `${member.user.tag} - ${member.user.id}`;
-//   });
-
-//   // Reply with the list of members
-//   message.reply(`Members:\n${membersList.join("\n")}`);
-// }
-
-module.exports = { commandActions, dmCommandActions };
+module.exports = { commandActions, dmCommandActions, listMembers };
