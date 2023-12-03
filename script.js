@@ -57,27 +57,6 @@ client.on(Events.MessageCreate, async (message) => {
     return; // Exit the function to avoid executing the prefix check
   }
 
-  // Check if the bot has permission to send DMs
-  if (
-    message.guild &&
-    !message.guild.me.permissionsIn(message.channel).has("SEND_MESSAGES")
-  ) {
-    console.log(
-      "Bot does not have permission to send messages in this channel.",
-    );
-    return;
-  }
-
-  // Check if the bot can send messages to the user
-  if (
-    message.channel.type === ChannelType.DM ||
-    message.author.bot ||
-    !message.author.canSend
-  ) {
-    console.log("Bot cannot send messages to the user.");
-    return;
-  }
-
   // Check for the trigger keyword
   if (message.content.toLowerCase().includes(triggerKeyword)) {
     // Get the target channel (replace 'TARGET_CHANNEL_ID' with the actual channel ID)
