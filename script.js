@@ -10,7 +10,8 @@ const {
   ChannelType,
 } = require("discord.js");
 
-const commandActions = require("./commands");
+const { commandActions, dmCommandActions } = require("./commands");
+
 const jokes = require("./jokes.js");
 
 //Array that will contain the history
@@ -30,7 +31,7 @@ const client = new Client({
 
 // Command prefix
 const prefix = "!";
-// Trigger for proactive DM sending (for example, if a message contains a specific keyword)
+// Trigger for proactive DM sending
 const triggerKeyword = "notify";
 
 client.once(Events.ClientReady, (createdClient) => {
@@ -44,6 +45,8 @@ client.on(Events.MessageCreate, async (message) => {
   let botId = client.user.id;
 
   // Check if the message is a Direct Message
+  // This is  DM channel message
+  // implement private response strategies here
   if (message.channel.type === ChannelType.DM) {
     // Check user privacy settings
     const userPrivacySettings = message.author.settings || { allowDMs: true };
@@ -57,7 +60,8 @@ client.on(Events.MessageCreate, async (message) => {
 
     // Check if the message starts with the prefix and execute the command
     if (message.content.startsWith(prefix)) {
-      executeCommand(message, botId, commandActions, prefix);
+      executeCommand(message, botId, dmCommandActions, commandActions, prefix);
+
       return; // Exit the function to avoid executing the prefix check
     }
     // Send a DM response
@@ -65,137 +69,203 @@ client.on(Events.MessageCreate, async (message) => {
     console.log(`Message: ${message.content}`);
     history.push(`${message.author.tag}: ${message.content}`);
     return; // Exit the function to avoid executing the prefix check
-  }
+  } else {
+    // This is a public channel message
+    // implement different response strategies here
 
-  // Check for the trigger keyword
-  if (message.content.toLowerCase().includes(triggerKeyword)) {
-    // Get the target channel (replace 'TARGET_CHANNEL_ID' with the actual channel ID)
-    const targetChannelId = "1180643625781170206";
+    // Check for the trigger keyword
+    if (message.content.toLowerCase().includes(triggerKeyword)) {
+      // Get the target channel (replace 'TARGET_CHANNEL_ID' with the actual channel ID)
+      const targetChannelId = "1180643625781170206";
 
-    try {
-      const guild = await client.guilds.fetch(message.guild.id);
-      const targetChannel = await guild.channels
-        .fetch(targetChannelId)
-        .catch((error) => {
-          console.error(`Failed to fetch target channel: ${error.message}`);
-          throw error; // Rethrow the error to prevent further execution
-        });
+      try {
+        const guild = await client.guilds.fetch(message.guild.id);
+        const targetChannel = await guild.channels
+          .fetch(targetChannelId)
+          .catch((error) => {
+            console.error(`Failed to fetch target channel: ${error.message}`);
+            throw error; // Rethrow the error to prevent further execution
+          });
 
-      // Check if the target channel exists and is a text channel
-      if (targetChannel && targetChannel.type === ChannelType.GuildText) {
-        console.log("Target channel is a text channel. Proceeding...");
+        // Check if the target channel exists and is a text channel
+        if (targetChannel && targetChannel.type === ChannelType.GuildText) {
+          console.log("Target channel is a text channel. Proceeding...");
 
-        // Fetch all members in the target channel with the 'force' option
-        await targetChannel.guild.members.fetch({ force: true });
+          // Fetch all members in the target channel with the 'force' option
+          await targetChannel.guild.members.fetch({ force: true });
 
-        // Fetch all members in the target channel
-        const members = targetChannel.guild.members.cache;
+          // Fetch all members in the target channel
+          const members = targetChannel.guild.members.cache;
 
-        // Check if the message contains the notify keyword
-        if (message.content.toLowerCase().includes("[notify]")) {
-          try {
-            const notifyMessage = message.content
-              .slice(
-                message.content.toLowerCase().indexOf("[notify]") +
-                  "[notify]".length,
-              )
-              .trim();
+          // Check if the message contains the notify keyword
+          if (message.content.toLowerCase().includes("[notify]")) {
+            try {
+              const notifyMessage = message.content
+                .slice(
+                  message.content.toLowerCase().indexOf("[notify]") +
+                    "[notify]".length,
+                )
+                .trim();
 
-            // Iterate over each member and send a proactive DM
-            for (const [_, member] of members) {
-              try {
-                // Fetch the member to ensure additional data is available
-                const fetchedMember = await targetChannel.guild.members.fetch(
-                  member.id,
-                );
-
-                // Check user privacy settings before sending a DM
-                const userPrivacySettings = fetchedMember.user.settings || {
-                  allowDMs: true,
-                };
-                if (userPrivacySettings.allowDMs) {
-                  // Send a DM with the specified message
-                  await fetchedMember.send(
-                    `${message.author.tag} says: ${notifyMessage}`,
+              // Iterate over each member and send a proactive DM
+              for (const [_, member] of members) {
+                try {
+                  // Fetch the member to ensure additional data is available
+                  const fetchedMember = await targetChannel.guild.members.fetch(
+                    member.id,
                   );
-                  // Log the allowDMs permission for the member
-                  console.log(
-                    `Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`,
-                  );
-                } else {
-                  console.log(
-                    `User ${fetchedMember.user.tag} has disabled direct messages.`,
+
+                  // Check user privacy settings before sending a DM
+                  const userPrivacySettings = fetchedMember.user.settings || {
+                    allowDMs: true,
+                  };
+                  if (userPrivacySettings.allowDMs) {
+                    // Send a DM with the specified message
+                    await fetchedMember.send(
+                      `${message.author.tag} says: ${notifyMessage}`,
+                    );
+                    // Log the allowDMs permission for the member
+                    console.log(
+                      `Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`,
+                    );
+                  } else {
+                    console.log(
+                      `User ${fetchedMember.user.tag} has disabled direct messages.`,
+                    );
+                  }
+                } catch (error) {
+                  console.error(
+                    `Failed to send DM to ${member.user.tag}: ${error.message}`,
                   );
                 }
-              } catch (error) {
-                console.error(
-                  `Failed to send DM to ${member.user.tag}: ${error.message}`,
-                );
               }
+            } catch (error) {
+              console.error(
+                `Error processing !notify command: ${error.message}`,
+              );
             }
-          } catch (error) {
-            console.error(`Error processing !notify command: ${error.message}`);
           }
+        } else {
+          console.log("Target channel not found or is not a text channel.");
         }
-      } else {
-        console.log("Target channel not found or is not a text channel.");
+      } catch (error) {
+        console.error(
+          `Error fetching target channel (${targetChannelId}): ${error.message}`,
+        );
       }
-    } catch (error) {
-      console.error(
-        `Error fetching target channel (${targetChannelId}): ${error.message}`,
+    }
+
+    // Check if the message mentions the bot
+
+    if (
+      message.content.includes(`<@${botId}>`) ||
+      message.content.includes(`<@!${botId}>`)
+    ) {
+      const words = message.content.split(/\s+/);
+      // Find the index of the bot mention
+      const botMentionIndex = words.findIndex(
+        (word) => word.includes(`<@${botId}`) || word.includes(`<@!${botId}`),
       );
-    }
-  }
+      // Check if there's a next word after the mention
+      if (botMentionIndex < words.length - 1) {
+        // Extract the next word as the command keyword
+        let theWordAfterBoxid = words[botMentionIndex + 1].toLowerCase();
+        let commandKeyword;
 
-  // Check if the message mentions the bot
-
-  if (
-    message.content.includes(`<@${botId}>`) ||
-    message.content.includes(`<@!${botId}>`)
-  ) {
-    const words = message.content.split(/\s+/);
-    // Find the index of the bot mention
-    const botMentionIndex = words.findIndex(
-      (word) => word.includes(`<@${botId}`) || word.includes(`<@!${botId}`),
-    );
-    // Check if there's a next word after the mention
-    if (botMentionIndex < words.length - 1) {
-      // Extract the next word as the command keyword
-      let theWordAfterBoxid = words[botMentionIndex + 1].toLowerCase();
-      let commandKeyword;
-
-      // Check if the command keyword is in commandActions
-      if (!commandActions.hasOwnProperty(theWordAfterBoxid)) {
-        commandKeyword = "ask";
-      } else {
-        commandKeyword = theWordAfterBoxid;
+        // Check if the command keyword is in commandActions
+        if (!commandActions.hasOwnProperty(theWordAfterBoxid)) {
+          commandKeyword = "ask";
+        } else {
+          commandKeyword = theWordAfterBoxid;
+        }
+        // Respond to the mention with the extracted command
+        commandActions[commandKeyword](message, botId);
+        console.log(`Message: ${message.content}`);
+        history.push(`${message.author.tag}: ${message.content}`);
+        return; // Exit the function to avoid executing the prefix check
       }
-      // Respond to the mention with the extracted command
-      commandActions[commandKeyword](message, botId);
-      console.log(`Message: ${message.content}`);
-      history.push(`${message.author.tag}: ${message.content}`);
-      return; // Exit the function to avoid executing the prefix check
     }
-  }
 
-  history.push(`${message.author.tag}: ${message.content}`);
+    history.push(`${message.author.tag}: ${message.content}`);
 
-  if (message.content.startsWith(prefix)) {
-    executeCommand(message, botId, commandActions, prefix);
+    if (message.content.startsWith(prefix)) {
+      executeCommand(message, botId, dmCommandActions, commandActions, prefix);
+    }
   }
 });
 
-// Function to handle command execution
-function executeCommand(message, botId, commandActions, prefix) {
+function executeCommand(
+  message,
+  botId,
+  dmCommandActions,
+  commandActions,
+  prefix,
+) {
+  try {
+    console.log("Prefix in executeCommand:", prefix);
+    console.log("Is prefix defined?", prefix !== undefined);
+    console.log("Message:", message); // Add this line
+    console.log("Message content:", message.content);
+    console.log("Prefix:", prefix);
+
+    const trimmedContent = message.content.slice(prefix.length).trim();
+    console.log("Trimmed content:", trimmedContent);
+
+    const args = trimmedContent.split(/ +/);
+    console.log("Args:", args);
+
+    const command = args.shift().toLowerCase(); // Use shift to get the command and remove it from the args array
+    console.log("Command:", command);
+    console.log("Args:", args);
+
+    if (!command) {
+      return;
+    }
+
+    if (message.channel.type === ChannelType.DM) {
+      if (command in dmCommandActions) {
+        console.log("Executing DM command:", command);
+        dmCommandActions[command](message, botId, args);
+      } else {
+        console.log("Executing regular command:", command);
+        executeRegularCommand(message, botId, commandActions, prefix, args);
+      }
+    } else {
+      console.log("Executing regular command:", command);
+      executeRegularCommand(message, botId, commandActions, prefix, args);
+    }
+  } catch (error) {
+    console.error("Error in executeCommand:", error);
+  }
+}
+
+// Function to execute regular commands
+function executeRegularCommand(message, botId, commandActions, prefix, args) {
   const command = message.content.slice(prefix.length).trim().split(/ +/)[0];
 
+  // Log the message content and args for debugging
+  console.log(`Message Content: ${message.content}`);
+  console.log(`Args: ${args}`);
+
   if (command in commandActions) {
-    commandActions[command](message, botId);
+    commandActions[command](message, botId, args);
   } else {
     message.reply(`Command not found: ${command}`);
     console.log(`Command not found: ${command}`);
   }
 }
+
+// // Function to handle command execution
+// function executeCommand(message, botId, commandActions, prefix) {
+//   const command = message.content.slice(prefix.length).trim().split(/ +/)[0];
+
+//   if (command in commandActions) {
+//     commandActions[command](message, botId);
+//   } else {
+//     message.reply(`Command not found: ${command}`);
+//     console.log(`Command not found: ${command}`);
+//   }
+// }
 
 // Log in to Discord with your client's token
 client.login(process.env.DISCORD_TOKEN);
