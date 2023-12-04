@@ -236,9 +236,9 @@ async function executeCommand(
 				if (feedbackFlag) {
 					await collectFeedback(message)
 				}
-        
 			} else {
-				// DO WE NEED THIS ELSE??
+				await sendHelpMessage(message)
+				/* // DO WE NEED THIS ELSE??
 				await executeRegularCommand(
 					message,
 					botId,
@@ -250,7 +250,7 @@ async function executeCommand(
 				//Send feedback messages
 				if (feedbackFlag) {
 					await collectFeedback(message)
-				}
+				} */
 			}
 		} else {
 			await executeRegularCommand(message, botId, commandActions, prefix, args)
