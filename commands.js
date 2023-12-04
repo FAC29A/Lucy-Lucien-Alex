@@ -37,7 +37,7 @@ function sendHelpMessage(message) {
 
   // Create a help text string listing all commands
   const helpText =
-    "List of regular commands:\n" + commandNames.map((name) => `!${name}`).join("\n");
+    "Available commands:\n" + commandNames.map((name) => `!${name}`).join("\n");
     message.reply(helpText);
 }
 
@@ -47,7 +47,7 @@ async function sendDMHelpMessage(message) {
   
 	// Create a help text string listing all DM commands
 	const dmHelpText =
-	  "DM-exclusive commands:\n" +
+	  "Nah, that won\'t do, try these DM-exclusive commands:\n" +
 	  dmCommandNames.map((name) => `!${name}`).join("\n");
   
 	message.reply(dmHelpText);
@@ -279,4 +279,4 @@ async function listMembers(message) {
   }
 }
 
-module.exports = { commandActions, dmCommandActions, listMembers, sendDMHelpMessage };
+module.exports = { commandActions, dmCommandActions, listMembers, sendHelpMessage, sendDMHelpMessage };

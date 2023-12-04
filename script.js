@@ -10,7 +10,7 @@ const {
   ChannelType
 } = require("discord.js");
 
-const { commandActions, dmCommandActions, listMembers, sendDMHelpMessage } = require("./commands");
+const { commandActions, dmCommandActions, listMembers, sendHelpMessage, sendDMHelpMessage } = require("./commands");
 
 const jokes = require("./jokes.js");
 
@@ -234,7 +234,7 @@ function executeRegularCommand(message, botId, commandActions, prefix, args) {
   if (command in commandActions) {
     commandActions[command](message, botId, args);
   } else {
-    sendHelpMessage(message)
+    sendHelpMessage(message);
   }
 }
 
