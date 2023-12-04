@@ -37,9 +37,22 @@ function sendHelpMessage(message) {
 
   // Create a help text string listing all commands
   const helpText =
-    "List of commands:\n" + commandNames.map((name) => `!${name}`).join("\n");
+    "List of regular commands:\n" + commandNames.map((name) => `!${name}`).join("\n");
     message.reply(helpText);
 }
+
+async function sendDMHelpMessage(message) {
+	// Get the command names from the dmCommandActions object
+	const dmCommandNames = Object.keys(dmCommandActions);
+  
+	// Create a help text string listing all DM commands
+	const dmHelpText =
+	  "DM-exclusive commands:\n" +
+	  dmCommandNames.map((name) => `!${name}`).join("\n");
+  
+	message.reply(dmHelpText);
+  }
+  
 
 function randomJokes(message) {
   const randomIndex = Math.floor(Math.random() * jokes.length);
@@ -266,4 +279,4 @@ async function listMembers(message) {
   }
 }
 
-module.exports = { commandActions, dmCommandActions, listMembers, sendHelpMessage };
+module.exports = { commandActions, dmCommandActions, listMembers, sendDMHelpMessage };

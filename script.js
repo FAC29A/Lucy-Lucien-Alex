@@ -10,7 +10,7 @@ const {
   ChannelType
 } = require("discord.js");
 
-const { commandActions, dmCommandActions, listMembers, sendHelpMessage } = require("./commands");
+const { commandActions, dmCommandActions, listMembers, sendDMHelpMessage } = require("./commands");
 
 const jokes = require("./jokes.js");
 
@@ -214,13 +214,7 @@ async function executeCommand(
       if (command in dmCommandActions) {
         await dmCommandActions[command](message, botId, args);
       } else {
-        await executeRegularCommand(
-          message,
-          botId,
-          commandActions,
-          prefix,
-          args,
-        );
+        await sendDMHelpMessage(message);
       }
     } else {
       await executeRegularCommand(message, botId, commandActions, prefix, args);
