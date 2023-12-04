@@ -10,8 +10,14 @@ const {
 	ChannelType,
 } = require('discord.js')
 
-const { commandActions, dmCommandActions, listMembers, sendHelpMessage, sendDMHelpMessage } = require("./commands");
-const jokes = require("./jokes.js");
+const {
+	commandActions,
+	dmCommandActions,
+	listMembers,
+	sendHelpMessage,
+	sendDMHelpMessage,
+} = require('./commands')
+const jokes = require('./jokes.js')
 
 //Array that will contain the history
 const history = require('./history')
@@ -268,6 +274,7 @@ function executeRegularCommand(message, botId, commandActions, prefix, args) {
 		commandActions[command](message, botId, args)
 	} else {
 		message.reply(`Command not found: ${command}`)
+		sendHelpMessage(message)
 	}
 }
 
