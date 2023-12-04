@@ -112,7 +112,8 @@ client.on(Events.MessageCreate, async (message) => {
 							member.id
 						)
 
-						// Check user privacy settings before sending a DM
+						// Check user privacy settings before sending a DM. If user.settings doesnt have a allowDMs value
+						// it will create it with the default value :true
 						const userPrivacySettings = fetchedMember.user.settings || {
 							allowDMs: true,
 						}
