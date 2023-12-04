@@ -34,7 +34,6 @@ function sendMessage(message, response) {
 function sendHelpMessage(message) {
   // Get the command names from the commandActions object
   const commandNames = Object.keys(commandActions);
-
   // Create a help text string listing all commands
   const helpText =
     "Available commands:\n" + commandNames.map((name) => `!${name}`).join("\n");

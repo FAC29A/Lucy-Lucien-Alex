@@ -236,6 +236,7 @@ async function executeCommand(
 				if (feedbackFlag) {
 					await collectFeedback(message)
 				}
+        
 			} else {
 				// DO WE NEED THIS ELSE??
 				await executeRegularCommand(
