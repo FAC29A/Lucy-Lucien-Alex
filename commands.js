@@ -106,7 +106,6 @@ async function chatGPT(message, botId) {
 	// Initialize conversation history if not present
 	if (!conversations[userId]) {
 		introPrompt = `Your user is <@${botId}> . You are Bender, the funny and rude robot from Futurama. You are in a conversation with the discord user ${message.author.tag}. There is no need to intruduce yourself, everyone knows you. You will use his typical expressions, like "cachocarne" in the Spanish version. When answering address to me by my name to make the interaction more personalised, try to guess my name using my Discord username. `
-		console.log(`Your name is: ${message.author.tag}`)
 		conversations[userId] = [
 			{
 				role: 'system',
@@ -125,7 +124,6 @@ async function chatGPT(message, botId) {
 
 	let systemMessageContent = introPrompt
 
-	console.log(`Length : ${conversations[userId].length}`)
 	// Add the reminder every 10th message
 	if (conversations[userId].length % 9 === 0) {
 		systemMessageContent += reminder
