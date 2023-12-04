@@ -1,6 +1,7 @@
 const jokes = require("./jokes");
 const history = require("./history");
 const OpenAIApi = require("openai");
+const { ChannelType } = require("discord.js");
 
 // Initialize OpenAI SDK with API key from .env file
 const openai = new OpenAIApi({
@@ -37,8 +38,21 @@ function sendHelpMessage(message) {
   // Create a help text string listing all commands
   const helpText =
     "Available commands:\n" + commandNames.map((name) => `!${name}`).join("\n");
-  message.reply(helpText);
+    message.reply(helpText);
 }
+
+async function sendDMHelpMessage(message) {
+	// Get the command names from the dmCommandActions object
+	const dmCommandNames = Object.keys(dmCommandActions);
+  
+	// Create a help text string listing all DM commands
+	const dmHelpText =
+	  "Nah, that won\'t do, try these DM-exclusive commands:\n" +
+	  dmCommandNames.map((name) => `!${name}`).join("\n");
+  
+	message.reply(dmHelpText);
+  }
+  
 
 function randomJokes(message) {
   const randomIndex = Math.floor(Math.random() * jokes.length);
@@ -265,4 +279,4 @@ async function listMembers(message) {
   }
 }
 
-module.exports = { commandActions, dmCommandActions, listMembers };
+module.exports = { commandActions, dmCommandActions, listMembers, sendHelpMessage, sendDMHelpMessage };

@@ -10,7 +10,8 @@ const {
 	ChannelType,
 } = require('discord.js')
 
-const { commandActions, dmCommandActions, listMembers } = require('./commands')
+const { commandActions, dmCommandActions, listMembers, sendHelpMessage, sendDMHelpMessage } = require("./commands");
+const jokes = require("./jokes.js");
 
 //Array that will contain the history
 const history = require('./history')
