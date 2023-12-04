@@ -13,11 +13,9 @@ const {
 const {
 	commandActions,
 	dmCommandActions,
-	listMembers,
 	sendHelpMessage,
 	sendDMHelpMessage,
 } = require('./commands')
-const jokes = require('./jokes.js')
 
 //Array that will contain the history
 const history = require('./history')
@@ -37,7 +35,7 @@ const client = new Client({
 // Command prefix
 const prefix = '!'
 // Trigger for proactive DM sending
-const triggerKeyword = 'notify'
+const triggerKeyword = '[notify]'
 
 client.once(Events.ClientReady, (createdClient) => {
 	console.log(`Logged in as ${createdClient.user.tag}`)
@@ -60,8 +58,6 @@ client.on(Events.MessageCreate, async (message) => {
 	let botId = client.user.id
 
 	// Check if the message is a Direct Message
-	// This is  DM channel message
-	// implement private response strategies here
 	if (message.channel.type === ChannelType.DM) {
 		// Check user privacy settings
 		const userPrivacySettings = message.author.settings || { allowDMs: true }
@@ -86,82 +82,61 @@ client.on(Events.MessageCreate, async (message) => {
 		return // Exit the function to avoid executing the prefix check
 	} else {
 		// This is a public channel message
-		// implement different response strategies here
 
 		// Check for the trigger keyword
 		if (message.content.toLowerCase().includes(triggerKeyword)) {
-			// Get the target channel (replace 'TARGET_CHANNEL_ID' with the actual channel ID)
-			const targetChannelId = '1180643625781170206'
-
 			try {
 				const guild = await client.guilds.fetch(message.guild.id)
 				const targetChannel = await guild.channels
-					.fetch(targetChannelId)
+					.fetch(message.channelId)
 					.catch((error) => {
 						console.error(`Failed to fetch target channel: ${error.message}`)
 						throw error // Rethrow the error to prevent further execution
 					})
 
-				// Check if the target channel exists and is a text channel
-				if (targetChannel && targetChannel.type === ChannelType.GuildText) {
-					console.log('Target channel is a text channel. Proceeding...')
+				// Fetch all members in the target channel
+				const members = targetChannel.guild.members.cache
 
-					// Fetch all members in the target channel with the 'force' option
-					await targetChannel.guild.members.fetch({ force: true })
+				const notifyMessage = message.content
+					.slice(
+						message.content.toLowerCase().indexOf(triggerKeyword) +
+							triggerKeyword.length
+					)
+					.trim()
 
-					// Fetch all members in the target channel
-					const members = targetChannel.guild.members.cache
+				// Iterate over each member and send a proactive DM
+				for (const [_, member] of members) {
+					try {
+						// Fetch the member to ensure additional data is available
+						const fetchedMember = await targetChannel.guild.members.fetch(
+							member.id
+						)
 
-					// Check if the message contains the notify keyword
-					if (message.content.toLowerCase().includes('[notify]')) {
-						try {
-							const notifyMessage = message.content
-								.slice(
-									message.content.toLowerCase().indexOf('[notify]') +
-										'[notify]'.length
-								)
-								.trim()
+						// Check user privacy settings before sending a DM. If user.settings doesnt have a allowDMs value
+						// it will create it with the default value :true
+						const userPrivacySettings = fetchedMember.user.settings || {
+							allowDMs: true,
+						}
 
-							// Iterate over each member and send a proactive DM
-							for (const [_, member] of members) {
-								try {
-									// Fetch the member to ensure additional data is available
-									const fetchedMember = await targetChannel.guild.members.fetch(
-										member.id
-									)
-
-									// Check user privacy settings before sending a DM
-									const userPrivacySettings = fetchedMember.user.settings || {
-										allowDMs: true,
-									}
-									if (userPrivacySettings.allowDMs) {
-										// Send a DM with the specified message
-										await fetchedMember.send(
-											`${message.author.tag} says: ${notifyMessage}`
-										)
-										// Log the allowDMs permission for the member
-										console.log(
-											`Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`
-										)
-									} else {
-										console.log(
-											`User ${fetchedMember.user.tag} has disabled direct messages.`
-										)
-									}
-								} catch (error) {
-									console.error(
-										`Failed to send DM to ${member.user.tag}: ${error.message}`
-									)
-								}
-							}
-						} catch (error) {
-							console.error(
-								`Error processing !notify command: ${error.message}`
+						if (userPrivacySettings.allowDMs) {
+							// Send a DM with the specified message
+							await fetchedMember.send(
+								`${message.author.tag} says: ${notifyMessage}`
+							)
+							// Log the allowDMs permission for the member
+							console.log(
+								`Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`
+							)
+						} else {
+							console.log(
+								`User ${fetchedMember.user.tag} has disabled direct messages.`
 							)
 						}
+					} catch (error) {
+						console.error(
+							`Failed to send DM to ${member.user.tag}: ${error.message}`
+						)
 					}
-				} else {
-					console.log('Target channel not found or is not a text channel.')
 				}
 			} catch (error) {
 				console.error(
@@ -194,7 +169,6 @@ client.on(Events.MessageCreate, async (message) => {
 				}
 				// Respond to the mention with the extracted command
 				commandActions[commandKeyword](message, botId)
-				console.log(`Message: ${message.content}`)
 				history.push(`${message.author.tag}: ${message.content}`)
 				return // Exit the function to avoid executing the prefix check
 			}
