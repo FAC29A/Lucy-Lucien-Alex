@@ -237,7 +237,9 @@ async function executeCommand(
 					await collectFeedback(message)
 				}
 			} else {
-				await sendHelpMessage(message)
+				console.log(`TestPoint 1`)
+				await sendDMHelpMessage(message)
+
 				/* // DO WE NEED THIS ELSE??
 				await executeRegularCommand(
 					message,
@@ -246,7 +248,6 @@ async function executeCommand(
 					prefix,
 					args
 				)
-
 				//Send feedback messages
 				if (feedbackFlag) {
 					await collectFeedback(message)
