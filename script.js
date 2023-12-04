@@ -7,10 +7,10 @@ const {
   Events,
   GatewayIntentBits,
   Partials,
-  ChannelType,
+  ChannelType
 } = require("discord.js");
 
-const { commandActions, dmCommandActions, listMembers } = require("./commands");
+const { commandActions, dmCommandActions, listMembers, sendHelpMessage } = require("./commands");
 
 const jokes = require("./jokes.js");
 
@@ -240,7 +240,7 @@ function executeRegularCommand(message, botId, commandActions, prefix, args) {
   if (command in commandActions) {
     commandActions[command](message, botId, args);
   } else {
-    message.reply(`Command not found: ${command}`);
+    sendHelpMessage(message)
   }
 }
 
