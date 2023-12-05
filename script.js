@@ -95,7 +95,7 @@ client.on(Events.MessageCreate, async (message) => {
 					})
 
 				// Fetch all members in the target channel
-				const members = targetChannel.guild.members.cache
+				const members = await guild.members.fetch({ force: true })
 
 				const notifyMessage = message.content
 					.slice(
@@ -120,13 +120,19 @@ client.on(Events.MessageCreate, async (message) => {
 
 						if (userPrivacySettings.allowDMs) {
 							// Send a DM with the specified message
-							await fetchedMember.send(
-								`${message.author.tag} says: ${notifyMessage}`
-							)
-							// Log the allowDMs permission for the member
-							console.log(
-								`Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`
-							)
+							try {
+								await fetchedMember.send(
+									`${message.author.tag} says: ${notifyMessage}`
+								)
+								// Log the allowDMs permission for the member
+								console.log(
+									`Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`
+								)
+							} catch (error) {
+								console.error(
+									`Failed to send DM to ${member.user.tag}: ${error.message}`
+								)
+							}
 						} else {
 							console.log(
 								`User ${fetchedMember.user.tag} has disabled direct messages.`
@@ -134,7 +140,7 @@ client.on(Events.MessageCreate, async (message) => {
 						}
 					} catch (error) {
 						console.error(
-							`Failed to send DM to ${member.user.tag}: ${error.message}`
+							`Failed fetch member ${member.user.tag}: ${error.message}`
 						)
 					}
 				}
@@ -145,13 +151,13 @@ client.on(Events.MessageCreate, async (message) => {
 			}
 		}
 
-		// Check if the message mentions the bot
+		// Check if the message tags the bot
 		if (
 			message.content.includes(`<@${botId}>`) ||
 			message.content.includes(`<@!${botId}>`)
 		) {
 			const words = message.content.split(/\s+/)
-			// Find the index of the bot mention
+			// Find the word index of the bot mention
 			const botMentionIndex = words.findIndex(
 				(word) => word.includes(`<@${botId}`) || word.includes(`<@!${botId}`)
 			)
@@ -162,10 +168,11 @@ client.on(Events.MessageCreate, async (message) => {
 				let commandKeyword
 
 				// Check if the command keyword is in commandActions
-				if (!commandActions.hasOwnProperty(theWordAfterBoxid)) {
-					commandKeyword = 'ask'
-				} else {
+				// REVERSE LOGIC??
+				if (commandActions.hasOwnProperty(theWordAfterBoxid)) {
 					commandKeyword = theWordAfterBoxid
+				} else {
+					commandKeyword = 'ask'
 				}
 				// Respond to the mention with the extracted command
 				commandActions[commandKeyword](message, botId)
@@ -173,7 +180,6 @@ client.on(Events.MessageCreate, async (message) => {
 				return // Exit the function to avoid executing the prefix check
 			}
 		}
-
 		history.push(`${message.author.tag}: ${message.content}`)
 
 		// Message doesnt tag the bot but contains command
@@ -192,29 +198,22 @@ async function executeCommand(
 ) {
 	try {
 		const trimmedContent = message.content.slice(prefix.length).trim()
-		const args = trimmedContent.split(/ +/)
+		const args = trimmedContent.split(/\s+/)
 		const command = args.shift().toLowerCase()
-
-		if (!command) {
-			return
-		}
-
 		// Check if the feedback flag is present
 		const feedbackFlag = args.includes('-f')
+
+		/* if (!command) {
+			return
+		} */
 
 		if (message.channel.type === ChannelType.DM) {
 			if (command in dmCommandActions) {
 				await dmCommandActions[command](message, botId, args)
+				// collect feedback messages
+				waitForFeedback(message, feedbackFlag)
 
-				// Send feedback messages
-				if (feedbackFlag) {
-					await collectFeedback(message)
-				}
-			} else {
-				console.log(`TestPoint 1`)
-				await sendDMHelpMessage(message)
-
-				/* // DO WE NEED THIS ELSE??
+			} else if (command in commandActions) {
 				await executeRegularCommand(
 					message,
 					botId,
@@ -222,17 +221,17 @@ async function executeCommand(
 					prefix,
 					args
 				)
-				//Send feedback messages
-				if (feedbackFlag) {
-					await collectFeedback(message)
-				} */
+				// collect feedback messages
+				waitForFeedback(message, feedbackFlag)
+			}
+			//Command is not on dmCommandActions or commandActions
+			else {
+				await sendDMHelpMessage(message)
 			}
 		} else {
 			await executeRegularCommand(message, botId, commandActions, prefix, args)
-			//Send feedback messages
-			if (feedbackFlag) {
-				await collectFeedback(message)
-			}
+			// collect feedback messages
+			waitForFeedback(message, feedbackFlag)
 		}
 	} catch (error) {
 		console.error('Error in executeCommand:', error)
@@ -243,7 +242,13 @@ async function executeCommand(
 	}
 }
 
-function executeRegularCommand(message, botId, commandActions, prefix, args) {
+async function executeRegularCommand(
+	message,
+	botId,
+	commandActions,
+	prefix,
+	args
+) {
 	const command = message.content.slice(prefix.length).trim().split(/ +/)[0]
 
 	if (command in commandActions) {
@@ -271,8 +276,9 @@ async function collectFeedback(message) {
 		const dmChannel = await message.author.createDM()
 		const feedbackCollector = dmChannel.createMessageCollector({
 			filter,
+			// Max number or requests allowed
 			max: 1,
-			time: 30000,
+			time: 20000,
 		})
 
 		feedbackCollector.on('collect', (m) => {
@@ -292,6 +298,12 @@ async function collectFeedback(message) {
 	} catch (error) {
 		console.error('Error in collecting feedback:', error)
 		awaitingFeedback.delete(message.author.id) // Make sure to reset the flag in case of error
+	}
+}
+
+async function waitForFeedback(message, feedbackFlag) {
+	if (feedbackFlag) {
+		await collectFeedback(message)
 	}
 }
 
