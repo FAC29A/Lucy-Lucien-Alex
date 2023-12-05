@@ -61,6 +61,13 @@ As a developer, I want the bot to recognise when a message is a direct message (
 - [ ] 7. **Error Handling in DMs**: As a developer, I want the bot to handle errors or invalid commands in DMs gracefully. The bot should provide clear guidance or assistance if users encounter issues while interacting through direct messages.
 
 
+
+# Use of OpenAI part of the bot
+
+When starting a conversation the bot will try to guess the name of the user who invoqued it by their Discord username. If the real name is not present on the Discord user it will just ommit it.
+
+
+
 # Running the Bot on a Raspberry PI.
 
 ## Install pm2 globally using npm:
@@ -73,10 +80,10 @@ sudo npm install pm2 -g
 Start your bot with pm2 by navigating to your bot's directory and running:
 
 ```bash
-pm2 start bot.js --name discord-bot
+pm2 start script.js --name discord-bot
 ```
 
-Replace bot.js with the main file of your Discord bot. The --name flag is optional and helps you identify your process easily.
+Replace script.js with the main file of your Discord bot. The --name flag is optional and helps you identify your process easily.
 
 ## Managing Your Bot
 

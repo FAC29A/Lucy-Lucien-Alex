@@ -1,7 +1,7 @@
 const jokes = require('./jokes')
 const history = require('./history')
 const OpenAIApi = require('openai')
-const { ChannelType } = require('discord.js')
+// const { ChannelType } = require('discord.js')
 
 // Initialize OpenAI SDK with API key from .env file
 const openai = new OpenAIApi({
@@ -18,13 +18,11 @@ const commandActions = {
 	ask: (message, botId) => chatGPT(message, botId),
 	help: sendHelpMessage,
 	poll: (message) => pollCommand(message),
-	// Add more commands and actions here
 }
 
-// Create a new object for DM commands
+// Data structure were we store all the DM commands
 const dmCommandActions = {
 	members: (message) => listMembers(message),
-	// Add more DM commands here
 }
 
 function sendMessage(message, response) {

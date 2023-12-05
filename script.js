@@ -151,7 +151,7 @@ client.on(Events.MessageCreate, async (message) => {
 			message.content.includes(`<@!${botId}>`)
 		) {
 			const words = message.content.split(/\s+/)
-			// Find the index of the bot mention
+			// Find the word index of the bot mention
 			const botMentionIndex = words.findIndex(
 				(word) => word.includes(`<@${botId}`) || word.includes(`<@!${botId}`)
 			)
@@ -162,6 +162,7 @@ client.on(Events.MessageCreate, async (message) => {
 				let commandKeyword
 
 				// Check if the command keyword is in commandActions
+				// REVERSE LOGIC??
 				if (!commandActions.hasOwnProperty(theWordAfterBoxid)) {
 					commandKeyword = 'ask'
 				} else {
@@ -271,8 +272,9 @@ async function collectFeedback(message) {
 		const dmChannel = await message.author.createDM()
 		const feedbackCollector = dmChannel.createMessageCollector({
 			filter,
+			// Max number or requests allowed
 			max: 1,
-			time: 30000,
+			time: 20000,
 		})
 
 		feedbackCollector.on('collect', (m) => {
