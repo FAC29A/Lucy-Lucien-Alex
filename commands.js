@@ -1,7 +1,7 @@
 const jokes = require('./jokes')
 const history = require('./history')
 const OpenAIApi = require('openai')
-// const { ChannelType } = require('discord.js')
+const { ChannelType } = require('discord.js')
 
 // Initialize OpenAI SDK with API key from .env file
 const openai = new OpenAIApi({
@@ -63,40 +63,20 @@ function sendMessage(message, response) {
 }
 
 function sendHelpMessage(message) {
-	console.log('called helpmessage')
 	let commandNames
-	console.log('Point00')
-	//DM
+
 	if (message.channel.type === ChannelType.DM) {
 		commandNames = Object.keys(commandActions)
-		console.log('Point01')
-	}
-	//PUBLIC
-	else {
-		console.log('Point02')
+	} else {
 		commandNames = Object.keys(commandActions).filter(
 			(name) => commandActions[name].isDMExclusive === false
 		)
 	}
-	console.log('Point03')
+
 	const helpText =
 		'Available commands:\n' + commandNames.map((name) => `!${name}`).join('\n')
 	message.reply(helpText)
 }
-
-/* async function sendDMHelpMessage(message) {
-	// Get the command names from the dmCommandActions object
-	const dmCommandNames = Object.keys(dmCommandActions)
-
-	// Create a help text string listing all DM commands
-	const dmHelpText =
-		"Nah, that won't do, try these DM-exclusive commands:\n" +
-		dmCommandNames.map((name) => `!${name}`).join('\n')
-
-	message.reply(dmHelpText)
-	message.reply('Or the generic commands:')
-	sendHelpMessage(message)
-} */
 
 function randomJokes(message) {
 	const randomIndex = Math.floor(Math.random() * jokes.length)
