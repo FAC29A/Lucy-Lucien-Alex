@@ -8,7 +8,7 @@ const openai = new OpenAIApi({
 	apiKey: process.env.OPENAI_API_KEY,
 })
 
-// Data structure were we store all the commands
+/* // Data structure were we store all the commands
 const commandActions = {
 	ping: (message) => sendMessage(message, 'Pong!'),
 	hello: (message) => sendMessage(message, 'Hi there!'),
@@ -18,11 +18,44 @@ const commandActions = {
 	ask: (message, botId) => chatGPT(message, botId),
 	help: sendHelpMessage,
 	poll: (message) => pollCommand(message),
-}
-
-// Data structure were we store all the DM commands
-const dmCommandActions = {
-	members: (message) => listMembers(message),
+} */
+const commandActions = {
+	ping: {
+		action: (message) => sendMessage(message, 'Pong!'),
+		isDMExclusive: false, // This command can be used in public channels and DMs
+	},
+	hello: {
+		action: (message) => sendMessage(message, 'Hi there!'),
+		isDMExclusive: false,
+	},
+	joke: {
+		action: (message) => randomJokes(message),
+		isDMExclusive: false,
+	},
+	echo: {
+		action: (message, botId) => echoMessage(message, botId),
+		isDMExclusive: false,
+	},
+	history: {
+		action: sendHistory,
+		isDMExclusive: false,
+	},
+	ask: {
+		action: (message, botId) => chatGPT(message, botId),
+		isDMExclusive: false,
+	},
+	help: {
+		action: sendHelpMessage,
+		isDMExclusive: false,
+	},
+	poll: {
+		action: (message) => pollCommand(message),
+		isDMExclusive: false,
+	},
+	members: {
+		action: (message) => listMembers(message),
+		isDMExclusive: true,
+	},
 }
 
 function sendMessage(message, response) {
@@ -30,15 +63,28 @@ function sendMessage(message, response) {
 }
 
 function sendHelpMessage(message) {
-	// Get the command names from the commandActions object
-	const commandNames = Object.keys(commandActions)
-	// Create a help text string listing all commands
+	console.log('called helpmessage')
+	let commandNames
+	console.log('Point00')
+	//DM
+	if (message.channel.type === ChannelType.DM) {
+		commandNames = Object.keys(commandActions)
+		console.log('Point01')
+	}
+	//PUBLIC
+	else {
+		console.log('Point02')
+		commandNames = Object.keys(commandActions).filter(
+			(name) => commandActions[name].isDMExclusive === false
+		)
+	}
+	console.log('Point03')
 	const helpText =
 		'Available commands:\n' + commandNames.map((name) => `!${name}`).join('\n')
 	message.reply(helpText)
 }
 
-async function sendDMHelpMessage(message) {
+/* async function sendDMHelpMessage(message) {
 	// Get the command names from the dmCommandActions object
 	const dmCommandNames = Object.keys(dmCommandActions)
 
@@ -50,7 +96,7 @@ async function sendDMHelpMessage(message) {
 	message.reply(dmHelpText)
 	message.reply('Or the generic commands:')
 	sendHelpMessage(message)
-}
+} */
 
 function randomJokes(message) {
 	const randomIndex = Math.floor(Math.random() * jokes.length)
@@ -277,8 +323,8 @@ async function listMembers(message) {
 
 module.exports = {
 	commandActions,
-	dmCommandActions,
+	//dmCommandActions,
 	listMembers,
 	sendHelpMessage,
-	sendDMHelpMessage,
+	//sendDMHelpMessage,
 }
