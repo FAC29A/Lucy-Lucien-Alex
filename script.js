@@ -12,9 +12,9 @@ const {
 
 const {
 	commandActions,
-	dmCommandActions,
+	//dmCommandActions,
 	sendHelpMessage,
-	sendDMHelpMessage,
+	//sendDMHelpMessage,
 } = require('./commands')
 
 //Array that will contain the history
@@ -71,12 +71,12 @@ client.on(Events.MessageCreate, async (message) => {
 
 		// Check if the message starts with the prefix and execute the command
 		if (message.content.startsWith(prefix)) {
-			executeCommand(message, botId, dmCommandActions, commandActions, prefix)
+			executeCommand(message, botId, commandActions, prefix)
 
 			return // Exit the function to avoid executing the prefix check
 		}
 		// Send a DM response
-		commandActions['ask'](message, botId)
+		commandActions['ask'].action(message, botId)
 		console.log(`Message: ${message.content}`)
 		history.push(`${message.author.tag}: ${message.content}`)
 		return // Exit the function to avoid executing the prefix check
@@ -168,14 +168,13 @@ client.on(Events.MessageCreate, async (message) => {
 				let commandKeyword
 
 				// Check if the command keyword is in commandActions
-				// REVERSE LOGIC??
 				if (commandActions.hasOwnProperty(theWordAfterBoxid)) {
 					commandKeyword = theWordAfterBoxid
 				} else {
 					commandKeyword = 'ask'
 				}
 				// Respond to the mention with the extracted command
-				commandActions[commandKeyword](message, botId)
+				commandActions[commandKeyword].action(message, botId)
 				history.push(`${message.author.tag}: ${message.content}`)
 				return // Exit the function to avoid executing the prefix check
 			}
@@ -184,18 +183,13 @@ client.on(Events.MessageCreate, async (message) => {
 
 		// Message doesnt tag the bot but contains command
 		if (message.content.startsWith(prefix)) {
-			executeCommand(message, botId, dmCommandActions, commandActions, prefix)
+			//executeCommand(message, botId, dmCommandActions, commandActions, prefix)
+			executeCommand(message, botId, commandActions, prefix)
 		}
 	}
 })
 
-async function executeCommand(
-	message,
-	botId,
-	dmCommandActions,
-	commandActions,
-	prefix
-) {
+async function executeCommand(message, botId, commandActions, prefix) {
 	try {
 		const trimmedContent = message.content.slice(prefix.length).trim()
 		const args = trimmedContent.split(/\s+/)
@@ -203,60 +197,28 @@ async function executeCommand(
 		// Check if the feedback flag is present
 		const feedbackFlag = args.includes('-f')
 
-		/* if (!command) {
-			return
-		} */
-
-		if (message.channel.type === ChannelType.DM) {
-			if (command in dmCommandActions) {
-				await dmCommandActions[command](message, botId, args)
+		// Example usage in your code:
+		if (command in commandActions) {
+			if (message.channel.type === ChannelType.DM) {
+				// Handle the case where a non-DM exclusive command is used in DMs
+				commandActions[command].action(message, botId)
 				// collect feedback messages
 				waitForFeedback(message, feedbackFlag)
-
-			} else if (command in commandActions) {
-				await executeRegularCommand(
-					message,
-					botId,
-					commandActions,
-					prefix,
-					args
-				)
-				// collect feedback messages
-				waitForFeedback(message, feedbackFlag)
-			}
-			//Command is not on dmCommandActions or commandActions
+			} //Public channel
 			else {
-				await sendDMHelpMessage(message)
+				// Execute the command
+				if (commandActions[command].isDMExclusive) {
+					message.reply(`Command not found: ${command}`)
+					await sendHelpMessage(message)
+				} else {
+					commandActions[command].action(message, botId)
+				}
 			}
 		} else {
-			await executeRegularCommand(message, botId, commandActions, prefix, args)
-			// collect feedback messages
-			waitForFeedback(message, feedbackFlag)
+			message.reply(`Command not found: ${command}`)
+			await sendHelpMessage(message)
 		}
-	} catch (error) {
-		console.error('Error in executeCommand:', error)
-		// Reply in the channel with a more specific error message
-		message.reply(
-			error.message || 'An error occurred while processing your request.'
-		)
-	}
-}
-
-async function executeRegularCommand(
-	message,
-	botId,
-	commandActions,
-	prefix,
-	args
-) {
-	const command = message.content.slice(prefix.length).trim().split(/ +/)[0]
-
-	if (command in commandActions) {
-		commandActions[command](message, botId, args)
-	} else {
-		message.reply(`Command not found: ${command}`)
-		sendHelpMessage(message)
-	}
+	} catch (error) {}
 }
 
 const awaitingFeedback = new Map() // Tracks which users are currently providing feedback

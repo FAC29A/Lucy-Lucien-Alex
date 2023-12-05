@@ -1,14 +1,14 @@
 const jokes = require('./jokes')
 const history = require('./history')
 const OpenAIApi = require('openai')
-// const { ChannelType } = require('discord.js')
+const { ChannelType } = require('discord.js')
 
 // Initialize OpenAI SDK with API key from .env file
 const openai = new OpenAIApi({
 	apiKey: process.env.OPENAI_API_KEY,
 })
 
-// Data structure were we store all the commands
+/* // Data structure were we store all the commands
 const commandActions = {
 	ping: (message) => sendMessage(message, 'Pong!'),
 	hello: (message) => sendMessage(message, 'Hi there!'),
@@ -18,11 +18,44 @@ const commandActions = {
 	ask: (message, botId) => chatGPT(message, botId),
 	help: sendHelpMessage,
 	poll: (message) => pollCommand(message),
-}
-
-// Data structure were we store all the DM commands
-const dmCommandActions = {
-	members: (message) => listMembers(message),
+} */
+const commandActions = {
+	ping: {
+		action: (message) => sendMessage(message, 'Pong!'),
+		isDMExclusive: false, // This command can be used in public channels and DMs
+	},
+	hello: {
+		action: (message) => sendMessage(message, 'Hi there!'),
+		isDMExclusive: false,
+	},
+	joke: {
+		action: (message) => randomJokes(message),
+		isDMExclusive: false,
+	},
+	echo: {
+		action: (message, botId) => echoMessage(message, botId),
+		isDMExclusive: false,
+	},
+	history: {
+		action: sendHistory,
+		isDMExclusive: false,
+	},
+	ask: {
+		action: (message, botId) => chatGPT(message, botId),
+		isDMExclusive: false,
+	},
+	help: {
+		action: sendHelpMessage,
+		isDMExclusive: false,
+	},
+	poll: {
+		action: (message) => pollCommand(message),
+		isDMExclusive: false,
+	},
+	members: {
+		action: (message) => listMembers(message),
+		isDMExclusive: true,
+	},
 }
 
 function sendMessage(message, response) {
@@ -30,26 +63,19 @@ function sendMessage(message, response) {
 }
 
 function sendHelpMessage(message) {
-	// Get the command names from the commandActions object
-	const commandNames = Object.keys(commandActions)
-	// Create a help text string listing all commands
+	let commandNames
+
+	if (message.channel.type === ChannelType.DM) {
+		commandNames = Object.keys(commandActions)
+	} else {
+		commandNames = Object.keys(commandActions).filter(
+			(name) => commandActions[name].isDMExclusive === false
+		)
+	}
+
 	const helpText =
 		'Available commands:\n' + commandNames.map((name) => `!${name}`).join('\n')
 	message.reply(helpText)
-}
-
-async function sendDMHelpMessage(message) {
-	// Get the command names from the dmCommandActions object
-	const dmCommandNames = Object.keys(dmCommandActions)
-
-	// Create a help text string listing all DM commands
-	const dmHelpText =
-		"Nah, that won't do, try these DM-exclusive commands:\n" +
-		dmCommandNames.map((name) => `!${name}`).join('\n')
-
-	message.reply(dmHelpText)
-	message.reply('Or the generic commands:')
-	sendHelpMessage(message)
 }
 
 function randomJokes(message) {
@@ -277,8 +303,8 @@ async function listMembers(message) {
 
 module.exports = {
 	commandActions,
-	dmCommandActions,
+	//dmCommandActions,
 	listMembers,
 	sendHelpMessage,
-	sendDMHelpMessage,
+	//sendDMHelpMessage,
 }
