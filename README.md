@@ -30,48 +30,68 @@ We chose to implement both options for texting / debugging purposes. We handled 
 
 # Use of OpenAI API
 
-When starting a conversation the bot (using the command `!ask` tagging the bot or just having a private converstion ,will try to guess the name of the user who invoqued it by their Discord username. If the real name is not present on the Discord user it will just ommit it.
+When starting a conversation the bot (using the command `!ask`, tagging the bot or just having a private conversation), the bot will try to guess the name of the user who summoned it by using their Discord username. If the real name is not present on the Discord username it will just ommit it.
+We infused our bot with the personality of Bender, the character from the serie Futurama, all his answers will be given using this specific tone.
+To interact with the bot in this way just use natural language, like a regular conversation.
 
-- [ ] 3. **Music Play Command**: As a developer, I want to implement a **`play`** command for music, so that users can play music in a voice channel by typing **`!play [song name or URL]`**. This requires handling audio streams and interfacing with Discord's voice channels.
+# Handling mentions
 
----
+The bot can detect when it is mentioned by recognising its own user ID in a message, and will answer accordingly.
 
-- - [x] **Error Handling**: As a beginner, I want to implement error handling in my bot interactions using **`try...catch`** within my **`async`** functions to manage exceptions and provide error messages if something goes wrong.
+`@botId commandKeyword` is treated as if the user types `!commandKeyword`
 
-# Handling mentions and DM Functionalities
+# DM Functionality
 
-_Try to implement **`some`** of the following user stories, you won’t have time to complete them all!_
+The bot will recognise when a message is a direct message (DM) as opposed to a public channel message. This will enable the bot:
 
----
+- Respond appropriately based on the context of the message in DMs.
 
-As a developer, I want the bot to detect when it is mentioned in a message. This will involve the bot recognising its own user ID in message content.
+- Regular command and DM-exlusive command are accessible in DMs.
 
-<aside>
-💡 **Hint**: Utilise the **`user.send()`** method in Discord.js to send direct messages to users. Retrieve the user object through events or commands that the bot receives.
+- Users with admin permissions can use proactively send DM messages to all members on the server. To respect user privacy and server setting, the bot will check user privacy setting before sending out DM message. In the same time, each member's DM permission setting will be render in the terminal when using proactive DM sending.
 
-</aside>
+- The bot provides a response regarding user's information only in DMs (i.e !userid to obtain user ID); Whereas on public channel, the commands associate with user's information are diabled. In the case of using `!help`, the bot will respond the avaialbe commands for the specific channel type (Dms or public channel)
 
-- [x] 1. **Automated Response to Mentions**: As a developer, I want the bot to automatically respond when it is mentioned. For example, the bot could reply with a standard message like `**Hello! How can I assist you today?**` whenever it is tagged in a chat.
-- [x] 2. **Custom Response Based on Context**: As a developer, I want the bot to give a custom response based on the context of the mention. If the mention is part of a question, the bot should respond accordingly, or if it's part of a greeting, the bot should reply with a greeting.
-- [x] 3. **Command Execution via Mention**: As a developer, I want the bot to execute commands when mentioned along with a command keyword. For instance, if a user types `**@BotName help**`, the bot should treat this as if the user typed `**!help**`.
-- [x] 4. **Mention Logging**: As a developer, I want the bot to log mentions, so I can track how often and in what context the bot is being mentioned, which can help in further improving interaction handling.
+- When adding the flag `-f` to a command the bot will send a DM to the author asking for feedback. The bot will wait up to 20 seconds for a response and log it as the feedback, after that period the window for receiving feedback will close.
 
----
+- On each channel type, if entered a wrong command, the bot will answer with a list of available commands for that specific channel.
 
-As a developer, I want the bot to recognise when a message is a direct message (DM) as opposed to a public channel message. This will enable the bot to respond appropriately based on the context of the message.
+# Technical details
 
-<aside>
-💡 **Hint: H**andle incoming messages by setting up a message event listener using **`client.on('message', callback)`** to process messages received in Discord
+### Error Handling
 
-</aside>
+We encapsulated all the async code on **`try...catch`** to manage exceptions or error, we customised error messages corresponding each steps. This is an example of our code:
 
-- [x] 1. **Automated DM Response**: As a developer, I want the bot to automatically send a response when it receives a direct message. For example, the bot could reply with a message like **`Hello! How can I help you?`** whenever a user sends it a DM.
-- [x] 2. **Command Handling in DMs**: As a developer, I want the bot to handle commands sent via direct messages. Commands that are accessible in public channels should also work in DMs, allowing users to interact with the bot privately.
-- [x] 3. **Proactive DM Sending**: As a developer, I want the bot to be able to send direct messages proactively to users, for instance, to send notifications or updates. This requires the bot to initiate a conversation based on certain triggers or conditions.
-- [x] 4. **Privacy and Permissions Check**: As a developer, I want the bot to check user privacy settings and permissions before sending direct messages. The bot should respect user privacy and server settings to avoid unwanted or intrusive interactions.
-- [x] 5. **Differentiated Response Strategies**: As a developer, I want the bot to employ different response strategies for public channel messages and DMs. The bot might provide more detailed help or sensitive information in DMs while keeping public channel interactions more general.
-- [ ] 6. **User Feedback Collection via DM**: As a developer, I want the bot to collect user feedback via direct messages. This could involve the bot sending a DM to ask for feedback after performing a task or responding to a command.
-- [ ] 7. **Error Handling in DMs**: As a developer, I want the bot to handle errors or invalid commands in DMs gracefully. The bot should provide clear guidance or assistance if users encounter issues while interacting through direct messages.
+```javaScript
+if (userPrivacySettings.allowDMs) {
+                    // Send a DM with the specified message
+                    try {
+                        await fetchedMember.send(
+                            `${message.author.tag} says: ${notifyMessage}`)
+
+                        // Log the allowDMs permission for the member
+                        console.log(
+                            `Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`)
+
+                    } catch (error) {
+                        console.error(
+                            `Failed to send DM to ${member.user.tag}: ${error.message}`)
+                    }
+                } else {
+                    console.log(
+                        `User ${fetchedMember.user.tag} has disabled direct messages.`)
+                }
+            } catch (error) {
+                console.error(
+                    `Failed fetch member ${member.user.tag}: ${error.message}`)
+            }
+
+    } catch (error) {
+        console.error(
+            `Error fetching target channel (${targetChannelId}): ${error.message}`)
+    }
+
+```
 
 # Running the Bot on a Raspberry PI.
 
