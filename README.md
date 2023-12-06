@@ -1,4 +1,4 @@
-# Lucy-Lucien-Alex
+![Alt text](BenderConversation.gif)
 
 # Custom commands
 
@@ -161,4 +161,3 @@ pm2 save
 ```
 
 Now, your bot should continue running even after closing the PuTTY session, and it will automatically start after the Raspberry Pi reboots.
-
