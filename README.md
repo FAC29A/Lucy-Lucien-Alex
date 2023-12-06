@@ -12,9 +12,14 @@
 - `!poll`: Conducts a poll based on user-provided options. Example usage:`!poll [question] [option1] [option2] ...`.The bot will be able to tally votes and display results.
 - `!myid` (_DM exclusive_): Sends the user's Discord ID in a DM.
 
-Description of what is happening in the images
+Description of what is happening in the images:
+
+_in DM_
 
 <img width="530" alt="Screenshot 2023-12-06 at 10 26 07" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/128807685/93b7e073-f263-45ea-b061-24c70cd7f485">
+
+_in public channel_
+
 <img width="767" alt="Screenshot 2023-12-06 at 10 27 19" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/128807685/e1770f45-89d8-4739-aa21-c200938ef81d">
 
 ---
