@@ -43,8 +43,7 @@ We infused our bot with the personality of Bender, the character from the serie 
 To interact with the bot in this way just use natural language, like a regular conversation.
 
 <div align="center">
-  
-![Bender](https://github.com/FAC29A/Lucy-Lucien-Alex/assets/94972293/e8fe79ee-03d3-4a8c-bdba-a6813446d8d4)
+<img width="406" alt="image" src="[https://github.com/FAC29A/Lucy-Lucien-Alex/assets/121562718/4effd591-eaa7-46db-82f7-ef16bb81103d](https://github.com/FAC29A/Lucy-Lucien-Alex/assets/94972293/e8e57982-6718-4ea9-a8ab-e7fdeef7794a)">
 </div>
 
 # Handling mentions
