@@ -1,115 +1,115 @@
-const jokes = require("./jokes");
-const history = require("./history");
-const OpenAIApi = require("openai");
-const { ChannelType } = require("discord.js");
+const jokes = require('./jokes')
+const history = require('./history')
+const OpenAIApi = require('openai')
+const { ChannelType } = require('discord.js')
 
 // Initialize OpenAI SDK with API key from .env file
 const openai = new OpenAIApi({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+	apiKey: process.env.OPENAI_API_KEY,
+})
 
 const commandActions = {
-  ping: {
-    action: (message) => sendMessage(message, "Pong!"),
-    isDMExclusive: false, // This command can be used in public channels and DMs
-  },
-  hello: {
-    action: (message) => sendMessage(message, "Hi there!"),
-    isDMExclusive: false,
-  },
-  joke: {
-    action: (message) => randomJokes(message),
-    isDMExclusive: false,
-  },
-  echo: {
-    action: (message, botId) => echoMessage(message, botId),
-    isDMExclusive: false,
-  },
-  history: {
-    action: sendHistory,
-    isDMExclusive: false,
-  },
-  ask: {
-    action: (message, botId) => chatGPT(message, botId),
-    isDMExclusive: false,
-  },
-  help: {
-    action: sendHelpMessage,
-    isDMExclusive: false,
-  },
-  poll: {
-    action: (message) => pollCommand(message),
-    isDMExclusive: false,
-  },
-  myid: {
-    action: (message) => getMyId(message),
-    isDMExclusive: true,
-  },
-};
+	ping: {
+		action: (message) => sendMessage(message, 'Pong!'),
+		isDMExclusive: false, // This command can be used in public channels and DMs
+	},
+	hello: {
+		action: (message) => sendMessage(message, 'Hi there!'),
+		isDMExclusive: false,
+	},
+	joke: {
+		action: (message) => randomJokes(message),
+		isDMExclusive: false,
+	},
+	echo: {
+		action: (message, botId) => echoMessage(message, botId),
+		isDMExclusive: false,
+	},
+	history: {
+		action: sendHistory,
+		isDMExclusive: false,
+	},
+	ask: {
+		action: (message, botId) => chatGPT(message, botId),
+		isDMExclusive: false,
+	},
+	help: {
+		action: sendHelpMessage,
+		isDMExclusive: false,
+	},
+	poll: {
+		action: (message) => pollCommand(message),
+		isDMExclusive: false,
+	},
+	myid: {
+		action: (message) => getMyId(message),
+		isDMExclusive: true,
+	},
+}
 
 function sendMessage(message, response) {
-  message.reply(response);
+	message.reply(response)
 }
 
 function sendHelpMessage(message) {
-  let commandNames;
+	let commandNames
 
-  if (message.channel.type === ChannelType.DM) {
-    commandNames = Object.keys(commandActions);
-  } else {
-    commandNames = Object.keys(commandActions).filter(
-      (name) => commandActions[name].isDMExclusive === false,
-    );
-  }
+	if (message.channel.type === ChannelType.DM) {
+		commandNames = Object.keys(commandActions)
+	} else {
+		commandNames = Object.keys(commandActions).filter(
+			(name) => commandActions[name].isDMExclusive === false
+		)
+	}
 
-  const helpText =
-    "Available commands:\n" + commandNames.map((name) => `!${name}`).join("\n");
-  message.reply(helpText);
+	const helpText =
+		'Available commands:\n' + commandNames.map((name) => `!${name}`).join('\n')
+	message.reply(helpText)
 }
 
 function randomJokes(message) {
-  const randomIndex = Math.floor(Math.random() * jokes.length);
-  const randomJoke = jokes[randomIndex];
-  message.reply(randomJoke);
+	const randomIndex = Math.floor(Math.random() * jokes.length)
+	const randomJoke = jokes[randomIndex]
+	message.reply(randomJoke)
 }
 
 function sendHistory(message) {
-  // Construct the history string
-  const historyText = history.join("\n");
-  message.reply(historyText);
+	// Construct the history string
+	const historyText = history.join('\n')
+	message.reply(historyText)
 }
 
 function echoMessage(message, botId) {
-  if (
-    message.content.startsWith("!echo") ||
-    message.content.includes(`<@${botId}> echo`)
-  ) {
-    // Extract the content after "echo"
-    const commandIndex = message.content.indexOf("echo");
+	if (
+		message.content.startsWith('!echo') ||
+		message.content.includes(`<@${botId}> echo`)
+	) {
+		// Extract the content after "echo"
+		const commandIndex = message.content.indexOf('echo')
 
-    if (commandIndex !== -1) {
-      // If 'echo' is found in the message, extract the content
-      const messageWithoutPrefix = message.content
-        .slice(commandIndex + 4)
-        .trim();
-      // Reply with the extracted content
-      message.reply(messageWithoutPrefix);
-    } else {
-      // If 'echo' is not found, reply with an error
-      message.reply("echo wrong spelling");
-    }
-  } else {
-    // If the message doesn't match the expected formats, reply with an error
-    message.reply("the at didn't even catched ");
-  }
+		if (commandIndex !== -1) {
+			// If 'echo' is found in the message, extract the content
+			const messageWithoutPrefix = message.content
+				.slice(commandIndex + 4)
+				.trim()
+			// Reply with the extracted content
+			message.reply(messageWithoutPrefix)
+		} else {
+			// If 'echo' is not found, reply with an error
+			message.reply('echo wrong spelling')
+		}
+	} else {
+		// If the message doesn't match the expected formats, reply with an error
+		message.reply("the at didn't even catched ")
+	}
 }
 
 // Object to store conversation histories
-const conversations = {};
+const conversations = {}
 
 async function chatGPT(message, botId) {
-  // User ID as the key for conversation history
-  const userId = message.author.id;
+	// User ID as the key for conversation history
+	const userId = message.author.id
 
 	//Initialise conversation
 	let introPrompt
@@ -130,13 +130,13 @@ async function chatGPT(message, botId) {
 		introPrompt = ''
 	}
 
-  // Check if the message starts with "!ask"
-  if (query.startsWith("!ask ")) {
-    query = message.content.replace("!ask ", "").trim();
-    // Combine the system message content with the query from the user
-  }
+	// Check if the message starts with "!ask"
+	if (query.startsWith('!ask ')) {
+		query = message.content.replace('!ask ', '').trim()
+		// Combine the system message content with the query from the user
+	}
 
-  let systemMessageContent = introPrompt;
+	let systemMessageContent = introPrompt
 
 	//console.log(`Length : ${conversations[userId].length}`)
 	// Add the reminder every 10th message
@@ -154,6 +154,7 @@ async function chatGPT(message, botId) {
 			printerStatusResult +
 			' '
 		query = printerMessage + query
+		return
 	}
 
 	//Check if the query is about printer lights
@@ -163,6 +164,7 @@ async function chatGPT(message, botId) {
 		const printerMessage =
 			'You just switched my printer lights on, brag about it '
 		query = printerMessage + query
+		return
 	}
 
 	//Check if the query is about printer lights
@@ -172,128 +174,129 @@ async function chatGPT(message, botId) {
 		const printerMessage =
 			'You just switched my printer lights off, brag about it '
 		query = printerMessage + query
+		return
 	}
 
-  // Combine the system message content with the user's query
-  let completeMessage = systemMessageContent + query;
+	// Combine the system message content with the user's query
+	let completeMessage = systemMessageContent + query
 
-  // Add the query to the conversation
-  conversations[userId].push({ role: "user", content: completeMessage });
-  console.log(`The query is: ${completeMessage}`);
+	// Add the query to the conversation
+	conversations[userId].push({ role: 'user', content: completeMessage })
+	console.log(`The query is: ${completeMessage}`)
 
-  // Call the OpenAI API for a chat completion
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: conversations[userId],
-    });
+	// Call the OpenAI API for a chat completion
+	try {
+		const completion = await openai.chat.completions.create({
+			model: 'gpt-3.5-turbo',
+			messages: conversations[userId],
+		})
 
-    // Get the reply and add it to the conversation history
-    const reply = completion.choices[0].message.content;
-    conversations[userId].push({ role: "assistant", content: reply });
+		// Get the reply and add it to the conversation history
+		const reply = completion.choices[0].message.content
+		conversations[userId].push({ role: 'assistant', content: reply })
 
-    // Limit the conversation history length to avoid large payloads
-    if (conversations[userId].length > 10) {
-      conversations[userId] = conversations[userId].slice(-10);
-    }
+		// Limit the conversation history length to avoid large payloads
+		if (conversations[userId].length > 10) {
+			conversations[userId] = conversations[userId].slice(-10)
+		}
 
-    // Send the response back to Discord
-    if (reply) {
-      message.reply(reply.trim());
-    } else {
-      message.reply("I didn't get a response. Please try again.");
-    }
-  } catch (error) {
-    console.error("Error calling OpenAI:", error);
-    message.reply(
-      "Sorry, I encountered an error while processing your request.",
-    );
-  }
+		// Send the response back to Discord
+		if (reply) {
+			message.reply(reply.trim())
+		} else {
+			message.reply("I didn't get a response. Please try again.")
+		}
+	} catch (error) {
+		console.error('Error calling OpenAI:', error)
+		message.reply(
+			'Sorry, I encountered an error while processing your request.'
+		)
+	}
 }
 
 // Function to handle the 'poll' command
 function pollCommand(message) {
-  // Extract the question and options from the message content
+	// Extract the question and options from the message content
 
-  const regex = /\[([^\]]+)]/g;
-  // Extract matches from the message content
-  const matches = [];
-  let match;
-  while ((match = regex.exec(message.content)) !== null) {
-    matches.push(match[1]);
-  }
+	const regex = /\[([^\]]+)]/g
+	// Extract matches from the message content
+	const matches = []
+	let match
+	while ((match = regex.exec(message.content)) !== null) {
+		matches.push(match[1])
+	}
 
-  // Ensure at least a question and two options are provided
-  if (matches.length >= 3) {
-    // Extract the question and options from the matches
-    const question = matches[0];
-    const options = matches.slice(1);
+	// Ensure at least a question and two options are provided
+	if (matches.length >= 3) {
+		// Extract the question and options from the matches
+		const question = matches[0]
+		const options = matches.slice(1)
 
-    // Create the poll message
-    const pollMessage =
-      `**${question}**\n\n` +
-      options.map((option, index) => `${index + 1}. ${option}`).join("\n");
+		// Create the poll message
+		const pollMessage =
+			`**${question}**\n\n` +
+			options.map((option, index) => `${index + 1}. ${option}`).join('\n')
 
-    // Send the poll message
-    message.channel.send(pollMessage).then((poll) => {
-      // Add reactions to the poll message for each option
-      options.slice(0, 9).forEach((_, index) => {
-        poll.react(`${index + 1}\u20e3`); // React with number emoji
-      });
+		// Send the poll message
+		message.channel.send(pollMessage).then((poll) => {
+			// Add reactions to the poll message for each option
+			options.slice(0, 9).forEach((_, index) => {
+				poll.react(`${index + 1}\u20e3`) // React with number emoji
+			})
 
-      // Create a filter for reactions (only allow reactions from the message author)
-      const filter = (reaction, user) => {
-        return options
-          .slice(0, 9)
-          .some(
-            (_, index) =>
-              reaction.emoji.name === `${index}\u20e3` &&
-              user.id === message.author.id,
-          );
-      };
+			// Create a filter for reactions (only allow reactions from the message author)
+			const filter = (reaction, user) => {
+				return options
+					.slice(0, 9)
+					.some(
+						(_, index) =>
+							reaction.emoji.name === `${index}\u20e3` &&
+							user.id === message.author.id
+					)
+			}
 
-      // Create a collector to listen for reactions
-      const collector = poll.createReactionCollector({ filter, time: 60000 }); // Collect reactions for 60 seconds
+			// Create a collector to listen for reactions
+			const collector = poll.createReactionCollector({ filter, time: 60000 }) // Collect reactions for 60 seconds
 
-      // Initialize a map to store vote counts for each option
-      const votes = new Map(
-        options.slice(0, 9).map((_, index) => [index + 1, 0]),
-      );
+			// Initialize a map to store vote counts for each option
+			const votes = new Map(
+				options.slice(0, 9).map((_, index) => [index + 1, 0])
+			)
 
-      console.log(votes);
+			console.log(votes)
 
-      // Listen for reactions and update vote counts
-      collector.on("collect", async (reaction) => {
-        const index = parseInt(reaction.emoji.name, 10);
-        // Ensure the bot's user ID is not included in the list of users who reacted
-        const reactedUsers = await reaction.users.fetch();
-        if (!reactedUsers.has(client.user.id)) {
-          // Skip incrementing the vote count if the bot reacted
-          votes.set(index, votes.get(index) + 1);
-        }
-      });
+			// Listen for reactions and update vote counts
+			collector.on('collect', async (reaction) => {
+				const index = parseInt(reaction.emoji.name, 10)
+				// Ensure the bot's user ID is not included in the list of users who reacted
+				const reactedUsers = await reaction.users.fetch()
+				if (!reactedUsers.has(client.user.id)) {
+					// Skip incrementing the vote count if the bot reacted
+					votes.set(index, votes.get(index) + 1)
+				}
+			})
 
-      // Listen for the 'end' event to display poll results
-      collector.on("end", () => {
-        const resultsMessage =
-          `Poll results for **${question}**\n\n` +
-          options
-            .slice(0, 9)
-            .map(
-              (option, index) =>
-                `${index + 1}. ${option}: ${votes.get(index + 1)} votes`,
-            )
-            .join("\n");
-        message.channel.send(resultsMessage);
-      });
-    });
-  } else {
-    // If not enough arguments are provided, notify the user
-    sendMessage(
-      message,
-      "Please provide a question and at least two options for the poll.",
-    );
-  }
+			// Listen for the 'end' event to display poll results
+			collector.on('end', () => {
+				const resultsMessage =
+					`Poll results for **${question}**\n\n` +
+					options
+						.slice(0, 9)
+						.map(
+							(option, index) =>
+								`${index + 1}. ${option}: ${votes.get(index + 1)} votes`
+						)
+						.join('\n')
+				message.channel.send(resultsMessage)
+			})
+		})
+	} else {
+		// If not enough arguments are provided, notify the user
+		sendMessage(
+			message,
+			'Please provide a question and at least two options for the poll.'
+		)
+	}
 }
 
 //CONTROLING 3D PRINTER
@@ -336,21 +339,20 @@ async function controlPrinterLights(action) {
 	}
 }
 
-
 // Function to list members in a DM
 async function getMyId(message) {
-  try {
-    const authorId = message.author.id;
+	try {
+		const authorId = message.author.id
 
-    message.reply(`Voila! Your ID number is ${authorId}`);
-  } catch (error) {
-    console.error(error.message);
-  }
+		message.reply(`Voila! Your ID number is ${authorId}`)
+	} catch (error) {
+		console.error(error.message)
+	}
 }
 
 module.exports = {
-  commandActions,
+	commandActions,
 
-  sendHelpMessage,
-  //sendDMHelpMessage,
-};
+	sendHelpMessage,
+	//sendDMHelpMessage,
+}
