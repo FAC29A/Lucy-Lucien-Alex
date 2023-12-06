@@ -1,55 +1,46 @@
 # Lucy-Lucien-Alex
 
+# Custom commands
 
-### Regular command
-- 
+- `!ping`: Replies with "Pong!" to check if the bot is responsive.
+- `!hello`: Greets the user with a friendly "Hi there!".
+- `!joke`: Shares a random joke from the bot's collection.
+- `!echo`: Repeats the user's message, excluding the "!echo" command.
+- `!history`: Sends the chat history stored by the bot.
+- `!ask`: Engages in a conversation with the OpenAI GPT-3.5 Turbo model.
+- `!help`: Displays a list of available commands based on the channel type.
+- `!poll`: Conducts a poll based on user-provided options. Example usage:`!poll [question] [option1] [option2] ...`.The bot will be able to tally votes and display results.
+- `!myid` (_DM exclusive_): Sends the user's Discord ID in a DM.
 
-### DM exlusive command
-- !myid: return user's ID. (_In case of attemp to ask confidential info on public channel.  This command will not be available here._)
+Description of what is happening in the images
+
 <img width="530" alt="Screenshot 2023-12-06 at 10 26 07" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/128807685/93b7e073-f263-45ea-b061-24c70cd7f485">
 <img width="767" alt="Screenshot 2023-12-06 at 10 27 19" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/128807685/e1770f45-89d8-4739-aa21-c200938ef81d">
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Custom commands
-
-<aside>
-💡 **Command Processing**: As a back-end developer, I want to process commands directed at my bot by using string matching or a command prefix to distinguish between general messages and commands meant for the bot.
-
-</aside>
-
-- [x] 1. **Command Prefix Setting**: As a developer, I want to set a command prefix for my bot, so it can recognise when a message is a command. For instance, using "!" before a command (like **`!help`**).
-- [x] 2. **Help Command**: As a developer, I want to implement a **`help`** command, so that when a user types **`!help`**, the bot will send a message listing all available commands and their descriptions.
-- [x] 3. **Greetings Command**: As a developer, I want to create a **`greet`** command, so that when a user types **`!greet`**, the bot will respond with a personalised greeting message, like "Hello, [username]!"
-- [x] 4. **Random Joke Command**: As a developer, I want to add a **`joke`** command, so that when a user types **`!joke`**, the bot will respond with a random joke.
-- [x] 5. **Echo Command**: As a developer, I want to implement an **`echo`** command, so that when a user types **`!echo [message]`**, the bot will repeat the message back to them.
-- [x] 6. **Command Logging**: As a developer, I want the bot to log the use of commands, so I can
-
 ---
 
-- [ ] 1. **Weather Information Command**: As a developer, I want to implement a **`weather`** command, so users can type **`!weather [city name]`** to get the current weather information for a specified city. This will involve integrating an external weather API.
-- [x] 2. **Poll Creation Command**: As a developer, I want to create a **`poll`** command, so that users can create interactive polls in the chat by typing **`!poll [question] [option1] [option2] ...`**. The bot should be able to tally votes and display results.
+### Conversation History
+
+When a user begins a conversation with our bot by using the `!ask` command or by tagging it, our bot begin to log all conversation history that can later be accessed on demand. Our history gets logged in two different ways:
+
+- **Locally:** The `history` function handles the **Command Logging**. This gets logged localy in `history.js`.
+- **OpenAI API storage:** By using and accessing the ChatGPT API, the user can ask the bot for a complete conversation history.
+
+We chose to implement both options for texting / debugging purposes. We handled the local history to aid with our bot building, particularly commands. OpenAI API's storage is more powerful, and will be the preferred logging method once the Bot is fully operational.
+
+# Use of OpenAI API
+
+When starting a conversation the bot (using the command `!ask` tagging the bot or just having a private converstion ,will try to guess the name of the user who invoqued it by their Discord username. If the real name is not present on the Discord user it will just ommit it.
+
 - [ ] 3. **Music Play Command**: As a developer, I want to implement a **`play`** command for music, so that users can play music in a voice channel by typing **`!play [song name or URL]`**. This requires handling audio streams and interfacing with Discord's voice channels.
 
 ---
 
 - - [x] **Error Handling**: As a beginner, I want to implement error handling in my bot interactions using **`try...catch`** within my **`async`** functions to manage exceptions and provide error messages if something goes wrong.
 
-
 # Handling mentions and DM Functionalities
 
-*Try to implement **`some`** of the following user stories, you won’t have time to complete them all!*
+_Try to implement **`some`** of the following user stories, you won’t have time to complete them all!_
 
 ---
 
@@ -82,14 +73,6 @@ As a developer, I want the bot to recognise when a message is a direct message (
 - [ ] 6. **User Feedback Collection via DM**: As a developer, I want the bot to collect user feedback via direct messages. This could involve the bot sending a DM to ask for feedback after performing a task or responding to a command.
 - [ ] 7. **Error Handling in DMs**: As a developer, I want the bot to handle errors or invalid commands in DMs gracefully. The bot should provide clear guidance or assistance if users encounter issues while interacting through direct messages.
 
-
-
-# Use of OpenAI part of the bot
-
-When starting a conversation the bot will try to guess the name of the user who invoqued it by their Discord username. If the real name is not present on the Discord user it will just ommit it.
-
-
-
 # Running the Bot on a Raspberry PI.
 
 ## Install pm2 globally using npm:
@@ -97,6 +80,7 @@ When starting a conversation the bot will try to guess the name of the user who 
 ```bash
 sudo npm install pm2 -g
 ```
+
 ## Running Your Bot with pm2
 
 Start your bot with pm2 by navigating to your bot's directory and running:
