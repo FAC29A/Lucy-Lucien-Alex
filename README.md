@@ -42,9 +42,8 @@ When starting a conversation the bot (using the command `!ask`, tagging the bot 
 We infused our bot with the personality of Bender, the character from the serie Futurama, all his answers will be given using this specific tone.
 To interact with the bot in this way just use natural language, like a regular conversation.
 
-<div align="center">
-<img width="406" alt="image" src="[https://github.com/FAC29A/Lucy-Lucien-Alex/assets/121562718/4effd591-eaa7-46db-82f7-ef16bb81103d](https://github.com/FAC29A/Lucy-Lucien-Alex/assets/94972293/e8e57982-6718-4ea9-a8ab-e7fdeef7794a)">
-</div>
+![Bender](https://github.com/FAC29A/Lucy-Lucien-Alex/assets/94972293/ef906a64-d175-4a0c-8f2e-1b319c505ec3)
+
 
 # Handling mentions
 
