@@ -1,3 +1,7 @@
+
+<img width="406" alt="image" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/121562718/4effd591-eaa7-46db-82f7-ef16bb81103d">
+
+
 ![Alt text](BenderConversation.gif)
 
 # Custom commands
