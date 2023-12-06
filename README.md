@@ -1,90 +1,159 @@
 # Lucy-Lucien-Alex
 
+# Custom commands
 
-### Regular command
-- 
+- `!ping`: Replies with "Pong!" to check if the bot is responsive.
+- `!hello`: Greets the user with a friendly "Hi there!".
+- `!joke`: Shares a random joke from the bot's collection.
+- `!echo`: Repeats the user's message, excluding the "!echo" command.
+- `!history`: Sends the chat history stored by the bot.
+- `!ask`: Engages in a conversation with the OpenAI GPT-3.5 Turbo model.
+- `!help`: Displays a list of available commands based on the channel type.
+- `!poll`: Conducts a poll based on user-provided options. Example usage:`!poll [question] [option1] [option2] ...`.The bot will be able to tally votes and display results.
+- `!myid` (_DM exclusive_): Sends the user's Discord ID in a DM.
 
-### DM exlusive command
-- !myid: return user's ID. (_In case of attemp to ask confidential info on public channel.  This command will not be available here._)
+Description of what is happening in the images
+
 <img width="530" alt="Screenshot 2023-12-06 at 10 26 07" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/128807685/93b7e073-f263-45ea-b061-24c70cd7f485">
 <img width="767" alt="Screenshot 2023-12-06 at 10 27 19" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/128807685/e1770f45-89d8-4739-aa21-c200938ef81d">
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Custom commands
-
-<aside>
-💡 **Command Processing**: As a back-end developer, I want to process commands directed at my bot by using string matching or a command prefix to distinguish between general messages and commands meant for the bot.
-
-</aside>
-
-- [x] 1. **Command Prefix Setting**: As a developer, I want to set a command prefix for my bot, so it can recognise when a message is a command. For instance, using "!" before a command (like **`!help`**).
-- [x] 2. **Help Command**: As a developer, I want to implement a **`help`** command, so that when a user types **`!help`**, the bot will send a message listing all available commands and their descriptions.
-- [x] 3. **Greetings Command**: As a developer, I want to create a **`greet`** command, so that when a user types **`!greet`**, the bot will respond with a personalised greeting message, like "Hello, [username]!"
-- [x] 4. **Random Joke Command**: As a developer, I want to add a **`joke`** command, so that when a user types **`!joke`**, the bot will respond with a random joke.
-- [x] 5. **Echo Command**: As a developer, I want to implement an **`echo`** command, so that when a user types **`!echo [message]`**, the bot will repeat the message back to them.
-- [x] 6. **Command Logging**: As a developer, I want the bot to log the use of commands, so I can
-
 ---
 
-- [ ] 1. **Weather Information Command**: As a developer, I want to implement a **`weather`** command, so users can type **`!weather [city name]`** to get the current weather information for a specified city. This will involve integrating an external weather API.
-- [x] 2. **Poll Creation Command**: As a developer, I want to create a **`poll`** command, so that users can create interactive polls in the chat by typing **`!poll [question] [option1] [option2] ...`**. The bot should be able to tally votes and display results.
-- [ ] 3. **Music Play Command**: As a developer, I want to implement a **`play`** command for music, so that users can play music in a voice channel by typing **`!play [song name or URL]`**. This requires handling audio streams and interfacing with Discord's voice channels.
+### Conversation History
 
----
+When a user begins a conversation with our bot by using the `!ask` command or by tagging it, our bot begin to log all conversation history that can later be accessed on demand. Our history gets logged in two different ways:
 
-- - [x] **Error Handling**: As a beginner, I want to implement error handling in my bot interactions using **`try...catch`** within my **`async`** functions to manage exceptions and provide error messages if something goes wrong.
+- **Locally:** The `history` function handles the **Command Logging**. This gets logged localy in `history.js`.
+- **OpenAI API storage:** By using and accessing the ChatGPT API, the user can ask the bot for a complete conversation history.
 
+We chose to implement both options for texting / debugging purposes. We handled the local history to aid with our bot building, particularly commands. OpenAI API's storage is more powerful, and will be the preferred logging method once the Bot is fully operational.
 
-# Handling mentions and DM Functionalities
+# Use of OpenAI API
 
-*Try to implement **`some`** of the following user stories, you won’t have time to complete them all!*
+When starting a conversation the bot (using the command `!ask`, tagging the bot or just having a private conversation), the bot will try to guess the name of the user who summoned it by using their Discord username. If the real name is not present on the Discord username it will just ommit it.
+We infused our bot with the personality of Bender, the character from the serie Futurama, all his answers will be given using this specific tone.
+To interact with the bot in this way just use natural language, like a regular conversation.
 
----
+# Handling mentions
 
-As a developer, I want the bot to detect when it is mentioned in a message. This will involve the bot recognising its own user ID in message content.
+The bot can detect when it is mentioned by recognising its own user ID in a message, and will answer accordingly.
 
-<aside>
-💡 **Hint**: Utilise the **`user.send()`** method in Discord.js to send direct messages to users. Retrieve the user object through events or commands that the bot receives.
+`@botId commandKeyword` is treated as if the user types `!commandKeyword`
 
-</aside>
+# DM Functionality
 
-- [x] 1. **Automated Response to Mentions**: As a developer, I want the bot to automatically respond when it is mentioned. For example, the bot could reply with a standard message like `**Hello! How can I assist you today?**` whenever it is tagged in a chat.
-- [x] 2. **Custom Response Based on Context**: As a developer, I want the bot to give a custom response based on the context of the mention. If the mention is part of a question, the bot should respond accordingly, or if it's part of a greeting, the bot should reply with a greeting.
-- [x] 3. **Command Execution via Mention**: As a developer, I want the bot to execute commands when mentioned along with a command keyword. For instance, if a user types `**@BotName help**`, the bot should treat this as if the user typed `**!help**`.
-- [x] 4. **Mention Logging**: As a developer, I want the bot to log mentions, so I can track how often and in what context the bot is being mentioned, which can help in further improving interaction handling.
+The bot will recognise when a message is a direct message (DM) as opposed to a public channel message. This will enable the bot:
 
----
+- Respond appropriately based on the context of the message in DMs.
 
-As a developer, I want the bot to recognise when a message is a direct message (DM) as opposed to a public channel message. This will enable the bot to respond appropriately based on the context of the message.
+- Regular command and DM-exlusive command are accessible in DMs.
 
-<aside>
-💡 **Hint: H**andle incoming messages by setting up a message event listener using **`client.on('message', callback)`** to process messages received in Discord
+- Users with admin permissions can use proactively send DM messages to all members on the server. To respect user privacy and server setting, the bot will check user privacy setting before sending out DM message. In the same time, each member's DM permission setting will be render in the terminal when using proactive DM sending.
 
-</aside>
+- The bot provides a response regarding user's information only in DMs (i.e !userid to obtain user ID); Whereas on public channel, the commands associate with user's information are diabled. In the case of using `!help`, the bot will respond the avaialbe commands for the specific channel type (Dms or public channel)
 
-- [x] 1. **Automated DM Response**: As a developer, I want the bot to automatically send a response when it receives a direct message. For example, the bot could reply with a message like **`Hello! How can I help you?`** whenever a user sends it a DM.
-- [x] 2. **Command Handling in DMs**: As a developer, I want the bot to handle commands sent via direct messages. Commands that are accessible in public channels should also work in DMs, allowing users to interact with the bot privately.
-- [x] 3. **Proactive DM Sending**: As a developer, I want the bot to be able to send direct messages proactively to users, for instance, to send notifications or updates. This requires the bot to initiate a conversation based on certain triggers or conditions.
-- [x] 4. **Privacy and Permissions Check**: As a developer, I want the bot to check user privacy settings and permissions before sending direct messages. The bot should respect user privacy and server settings to avoid unwanted or intrusive interactions.
-- [x] 5. **Differentiated Response Strategies**: As a developer, I want the bot to employ different response strategies for public channel messages and DMs. The bot might provide more detailed help or sensitive information in DMs while keeping public channel interactions more general.
-- [ ] 6. **User Feedback Collection via DM**: As a developer, I want the bot to collect user feedback via direct messages. This could involve the bot sending a DM to ask for feedback after performing a task or responding to a command.
-- [ ] 7. **Error Handling in DMs**: As a developer, I want the bot to handle errors or invalid commands in DMs gracefully. The bot should provide clear guidance or assistance if users encounter issues while interacting through direct messages.
+- When adding the flag `-f` to a command the bot will send a DM to the author asking for feedback. The bot will wait up to 20 seconds for a response and log it as the feedback, after that period the window for receiving feedback will close.
 
+- On each channel type, if entered a wrong command, the bot will answer with a list of available commands for that specific channel.
 
+# Technical details
 
-# Use of OpenAI part of the bot
+### Error Handling
 
-When starting a conversation the bot will try to guess the name of the user who invoqued it by their Discord username. If the real name is not present on the Discord user it will just ommit it.
+We encapsulated all the async code on **`try...catch`** to manage exceptions or error, we customised error messages corresponding each steps. This is an example of our code:
+
+```javaScript
+if (userPrivacySettings.allowDMs) {
+                    // Send a DM with the specified message
+                    try {
+                        await fetchedMember.send(
+                            `${message.author.tag} says: ${notifyMessage}`)
+
+                        // Log the allowDMs permission for the member
+                        console.log(
+                            `Sent DM to ${fetchedMember.user.tag}. allowDMs: ${userPrivacySettings.allowDMs}`)
+
+                    } catch (error) {
+                        console.error(
+                            `Failed to send DM to ${member.user.tag}: ${error.message}`)
+                    }
+                } else {
+                    console.log(
+                        `User ${fetchedMember.user.tag} has disabled direct messages.`)
+                }
+            } catch (error) {
+                console.error(
+                    `Failed fetch member ${member.user.tag}: ${error.message}`)
+            }
+
+    } catch (error) {
+        console.error(
+            `Error fetching target channel (${targetChannelId}): ${error.message}`)
+    }
+
+```
+
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+
+# Running the Bot on a Raspberry PI.
+
+## Install pm2 globally using npm:
+
+```bash
+sudo npm install pm2 -g
+```
+
+## Running Your Bot with pm2
+
+Start your bot with pm2 by navigating to your bot's directory and running:
+
+```bash
+pm2 start script.js --name discord-bot
+```
+
+Replace script.js with the main file of your Discord bot. The --name flag is optional and helps you identify your process easily.
+
+## Managing Your Bot
+
+To check the status of your bot, use:
+
+```bash
+pm2 status
+```
+
+To view detailed logs of your bot:
+
+```bash
+pm2 logs discord-bot
+```
+
+To restart your bot:
+
+```bash
+pm2 restart discord-bot
+```
+
+To stop your bot:
+
+```bash
+pm2 stop discord-bot
+```
+
+## Setting Up pm2 to Start on Boot
+
+To make sure your bot starts automatically after a reboot, use the following command:
+
+```bash
+pm2 startup
+```
+
+This command will generate a line that you need to copy and run in the terminal. It sets up a script that will start pm2 with your saved processes on boot.
+
+After setting up the startup script, save the current list of processes:
+
+```bash
+pm2 save
+```
+
+Now, your bot should continue running even after closing the PuTTY session, and it will automatically start after the Raspberry Pi reboots.
 
