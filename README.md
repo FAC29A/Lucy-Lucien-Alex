@@ -2,8 +2,6 @@
 <img width="406" alt="image" src="https://github.com/FAC29A/Lucy-Lucien-Alex/assets/121562718/4effd591-eaa7-46db-82f7-ef16bb81103d">
 
 
-![Alt text](BenderConversation.gif)
-
 # Custom commands
 
 - `!ping`: Replies with "Pong!" to check if the bot is responsive.
@@ -42,6 +40,8 @@ We chose to implement both options for texting / debugging purposes. We handled 
 When starting a conversation the bot (using the command `!ask`, tagging the bot or just having a private conversation), the bot will try to guess the name of the user who summoned it by using their Discord username. If the real name is not present on the Discord username it will just ommit it.
 We infused our bot with the personality of Bender, the character from the serie Futurama, all his answers will be given using this specific tone.
 To interact with the bot in this way just use natural language, like a regular conversation.
+
+![Alt text](BenderConversation.gif)
 
 # Handling mentions
 
