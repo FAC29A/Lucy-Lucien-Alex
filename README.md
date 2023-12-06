@@ -102,8 +102,6 @@ if (userPrivacySettings.allowDMs) {
 
 ```
 
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
-
 # Running the Bot on a Raspberry PI.
 
 ## Install pm2 globally using npm:
