@@ -18,7 +18,7 @@ const {
 } = require('./commands')
 
 //Array that will contain the history
-const history = require('./history')
+// const history = require('./history')
 
 // Create a new client instance
 const client = new Client({
